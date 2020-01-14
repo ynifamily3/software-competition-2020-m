@@ -87,7 +87,7 @@ Quest.generate_binary_quest = function(material) {
 		// 	fact = Soup.select_negative_attrs(material, 1);
 		// else
 		// 	fact = Soup.mutate_attr(Soup.select_positive_attr(material));
-		fact = material.names[0] + Traveler.selectNegativeAttrs(material, 1)[0].getHintSentence();
+		fact = material.names[0] + Traveler.selectNegativeAttrs(material, 1)[0].getHintSentence(true);
 	}
 	let name = Util.get_randomly(material.names);
 	return new Quest('binary', '다음 문장의 참/거짓을 판별하시오.',
@@ -124,7 +124,9 @@ Quest.generate_selection_quest = function(material, n, a, inv) {
 	//let neg = Soup.select_negative_attrs(g, material, n - p);
 	let neg = Traveler.selectNegativeAttrs(material, n - p);
 
-	// 선택지 합치기
+	// 선택지 만들기
+	// 일단 정답부터 만들고, attr 개체를 string으로 변환한다.
+	// 섞고, pos가 있는 위치들을 찾고, pos와 neg를 문장으로 변환.
 	let choices = Util.shuffle(pos.concat(neg), false);
 	let answers = null;
 	if(inv)
@@ -136,6 +138,9 @@ Quest.generate_selection_quest = function(material, n, a, inv) {
 			return `${choices.indexOf(attr)}`;
 		});
 	let name = Util.get_randomly(material.names);
+	choices = choices.map(attr => {
+		return attr.getHintSentence(false);
+	});
 
 	// 표현
 	let logic_label = inv ? '옳지 않은 것' : '옳은 것';
