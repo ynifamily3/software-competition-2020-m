@@ -34,6 +34,7 @@ class Attr {
 		this.prefix = prefix;
 		this.content = content;
 		this.postfix = postfix;
+		this.id = null;
 	}
 
 	/*
