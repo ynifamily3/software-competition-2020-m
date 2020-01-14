@@ -1,17 +1,20 @@
 import React from 'react';
 import './App.css';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import MySubjects from './pages/MySubjects';
-
-import Greetings from './components/Greetings';
+// import MySubjects from './pages/MySubjects';
+import ModalBox from './components/ModalBox';
+// import Greetings from './components/Greetings';
 
 function App() {
   return (
     <div className="App">
       <React.Fragment>
         <CssBaseline />
-        <MySubjects />
-        <Greetings name="Miel" optional="옵셔널" />
+        <ModalBox
+          subjectWord="재능낭비"
+          postpositionWords={['은/는', '으로', '에는']}
+          keyPhrase="때때로 많은 돈이 필요"
+        />
       </React.Fragment>
     </div>
   );
