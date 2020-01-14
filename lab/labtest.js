@@ -29,3 +29,7 @@ console.assert(lm.moveToParent().names[0] == '국밥');
 console.assert(lm.moveToParent() == null);
 
 console.log(lm);
+
+const Traveler = require('../front/src/libs/traveler');
+
+console.log(Traveler.selectNegativeAttrs(lm.wp.childs[0].childs[0], 3));

@@ -19,7 +19,7 @@ class Traveler {
 Traveler.forEachPre = function(root, consummer) {
 	consummer(root);
 	root.childs.forEach(child => {
-		forEachPre(child, consummer);
+		Traveler.forEachPre(child, consummer);
 	});
 };
 
@@ -32,9 +32,9 @@ Traveler.forEachPre = function(root, consummer) {
 	function(info) consummer
 		순회하면서 호출할 함수
 */
-Traveler.forEachPre = function(root, consummer) {
+Traveler.forEachPost = function(root, consummer) {
 	root.childs.forEach(child => {
-		forEachPre(child, consummer);
+		Traveler.forEachPost(child, consummer);
 	});
 	consummer(root);
 };
@@ -62,6 +62,9 @@ Traveler.selectNegativeInfos = function(material) {
 	}
 
 	let comm = { visited: {}, out: [] };
+	Traveler.forEachPre(material, info => {
+		comm.visited[info.jsid] = true;
+	});
 	traverseUp(material, comm);
 	return comm.out;
 };
@@ -71,10 +74,11 @@ Traveler.selectNegativeInfos = function(material) {
 	n개를 찾지 못할 수도 있다.
 */
 Traveler.selectPositiveAttrs = function(material, n) {
-	if (n == 1)
-		return Util.get_randomly(material.attrs);
+	console.assert(material != null);
+	if (n <= 1)
+		return [Util.get_randomly(material.attrs)];
 	else
-		return Util.get_randomly_multi(material.attrs, n);
+		return Util.get_randomly_multi(material.attrs, Math.min(n, material.attrs.length));
 };
 
 /*
@@ -82,6 +86,20 @@ Traveler.selectPositiveAttrs = function(material, n) {
 	n개를 찾지 못할 수도 있따.
 */
 Traveler.selectNegativeAttrs = function(material, n) {
+	console.assert(material != null);
+
+	// 속성을 전부 불러온다
+	let infos = Traveler.selectNegativeInfos(material);
+	let attrs = [];
+	infos.forEach(info => {
+		attrs = attrs.concat(info.attrs);
+	});
+	console.log(attrs);
+
+	if (n <= 1)
+		return [Util.get_randomly(attrs)];
+	else
+		return Util.get_randomly_multi(attrs, Math.min(n, attrs.length));
 };
 
 module.exports = Traveler;

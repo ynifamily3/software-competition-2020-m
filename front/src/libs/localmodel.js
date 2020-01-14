@@ -66,12 +66,27 @@ class LocalModel {
 			this.createSubject('국밥', null);
 			this.createAttr('은', '든든', '하다', null);
 			this.createAttr('은', '뜨뜻', '하다', null);
+			
 			this.createInfo('돼지국밥', null);
 			this.createAttr('에는', '순대가 들어', '있다', null);
 			this.createAttr('은', '경남에서 유명', '하다', null);
+
+			this.createInfo('무봉리순대국밥', null);
+			this.createAttr('은', '경남의 체인점', '이다.', null);
+			this.createAttr('에는', '20년째 운영하는 집도', '있다.', null);
+
 			this.moveToParent();
+
+			this.createInfo('할매순대국밥', null);
+			this.createAttr('은', '실제로는 없는 브랜드', '이다', null);
+			this.createAttr('은', '어쩌면 하나쯤은 있을수도', '있다', null);
+
+			this.moveToParent();
+			this.moveToParent();
+			
 			this.createInfo('소고기국밥', null);
 			this.createAttr('은', '대전이 맛있', '다', null);
+			this.createAttr('은', '얼큰한 국물이 인상적', '이다', null);
 			this.moveToParent();
 
 			// Comment
