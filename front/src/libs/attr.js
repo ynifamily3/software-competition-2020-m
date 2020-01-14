@@ -58,7 +58,7 @@ class Attr {
 		ex) "바보다."
 	*/
 	getHintSentence() {
-		return this.content + this.postfix + '.';
+		return this.prefix + ' ' + this.content + this.postfix + '.';
 	}
 };
 

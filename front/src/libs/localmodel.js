@@ -72,8 +72,8 @@ class LocalModel {
 			this.createAttr('은', '경남에서 유명', '하다', null);
 
 			this.createInfo('무봉리순대국밥', null);
-			this.createAttr('은', '경남의 체인점', '이다.', null);
-			this.createAttr('에는', '20년째 운영하는 집도', '있다.', null);
+			this.createAttr('은', '경남의 체인점', '이다', null);
+			this.createAttr('에는', '20년째 운영하는 집도', '있다', null);
 
 			this.moveToParent();
 
