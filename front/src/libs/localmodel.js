@@ -64,7 +64,7 @@ class LocalModel {
 				// 에러 체크
 				if (!response.data.state) {
 					console.log('[LocalModel::getSubjectsList] Fail to fetch data.');
-					console.log(response.msg);
+					console.log(response.data.msg);
 					if (callback)
 						callback([]);
 					return ;
@@ -149,7 +149,7 @@ class LocalModel {
 				// 에러 체크
 				if (!response.data.state) {
 					console.log('[LocalModel::moveToSubject] Fail to fetch data.');
-					console.log(response.msg);
+					console.log(response.data.msg);
 					if (callback)
 						callback(null);
 					return ;
