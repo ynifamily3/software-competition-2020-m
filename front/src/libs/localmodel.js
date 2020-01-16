@@ -1,5 +1,6 @@
 const Info = require('./info');
 const Attr = require('./attr');
+const axios = require('./axios/axios.min');
 
 /*
 	LocalModel은 클라이언트에서 다루는 주제 트리와
@@ -9,8 +10,6 @@ const Attr = require('./attr');
 	LocalModel의 내부에는 wp(working page)라는
 	레퍼런스가 존재하며, 이것으로 현재 페이지를
 	구분할 수 있다.
-
-	한 번 subject로 
 */
 class LocalModel {
 	/*
@@ -32,46 +31,103 @@ class LocalModel {
 		// 네트워크 통신을 수행하지 않고 미리 하드코딩한
 		// 모델을 사용한다.
 		this.devmode = devmode;
+
+		// 서버 주소
+		this.url = 'https://my-json-server.typicode.com/Phryxia/demo';
 	}
 
 	/*
 		서버에 존재하는 모든 주제의 리스트를 불러와
 		callback으로 전달한다. 실패하면 []를 전달한다.
 
-		devmode에서는 하드코딩된 ['국밥']을 전달한다.
+		devmode에서는 하드코딩된 [{name: '국밥', id: 1}]을 전달한다.
+
+		전달 형식:
+			[{name: '주제명', id: '주제id'}]
 	*/
 	getSubjectsList(callback) {
-		console.warn('함수가 미구현 상태입니다');
-
 		if (this.devmode && callback)
-			callback(['국밥']);
+			callback([{'name': '국밥', id: 1}]);
 
-		callback([]);
+		if (!this.devmode)
+		{
+			// 요청 !
+			axios({
+				'method': 'get',
+				'url': this.url + '/getInfosList',
+				'params': {}
+			})
+			.then(response => {
+				// response에 대한 자세한 전달 데이터는
+				// https://git.alien.moe/ynifamily3/software-competition/wiki/%ED%86%B5%EC%8B%A0%EA%B7%9C%EA%B2%A9
+				// 참고
+				// 에러 체크
+				if (!response.data.state) {
+					console.log('[LocalModel::getSubjectsList] Fail to fetch data.');
+					console.log(response.data.msg);
+					if (callback)
+						callback([]);
+					return ;
+				}
+
+				console.log(response.data);
+				let myJson = response.data;
+
+				if (!callback)
+					return;
+
+				let out = [];
+				for (let i = 0; i < myJson.names.length; ++i) {
+					out.push({
+						'name': myJson.names[i],
+						'id': myJson.ids[i]
+					});
+				}
+				callback(out);
+			})
+			.catch(err => {
+				console.log('[LocalModel::getSubjectsList] Fail to fetch data.');
+				console.log(err);
+			});
+		}
 	}
 
 	/*
-		서버에서 name을 이름으로 갖는 주제를 불러온 뒤
+		서버에서 id를 ID로 갖는 주제를 불러온 뒤
 		그 주제의 최상단 지식으로 이동한다.
 
-		불러오는데 성공하면 callback으로 최상단 노드를
+		불러오는데 성공하면 callback으로 최상단 Info를
 		전달하며 실패하면 callback으로 null을 전달한다.
 
 		devmode에서는 하드코딩된 국밥 주제를 로드하며
 		항상 성공한다.
 	*/
-	moveToSubject(name, callback) {
-		console.warn('함수가 미구현 상태입니다');
-
+	moveToSubject(id, callback) {
 		if(this.devmode) {
 			this.createSubject('국밥', null);
 			this.createAttr('은', '든든', '하다', null);
 			this.createAttr('은', '뜨뜻', '하다', null);
+			
 			this.createInfo('돼지국밥', null);
 			this.createAttr('에는', '순대가 들어', '있다', null);
 			this.createAttr('은', '경남에서 유명', '하다', null);
+
+			this.createInfo('무봉리순대국밥', null);
+			this.createAttr('은', '경남의 체인점', '이다', null);
+			this.createAttr('에는', '20년째 운영하는 집도', '있다', null);
+
 			this.moveToParent();
+
+			this.createInfo('할매순대국밥', null);
+			this.createAttr('은', '실제로는 없는 브랜드', '이다', null);
+			this.createAttr('은', '어쩌면 하나쯤은 있을수도', '있다', null);
+
+			this.moveToParent();
+			this.moveToParent();
+			
 			this.createInfo('소고기국밥', null);
 			this.createAttr('은', '대전이 맛있', '다', null);
+			this.createAttr('은', '얼큰한 국물이 인상적', '이다', null);
 			this.moveToParent();
 
 			// Comment
@@ -82,8 +138,62 @@ class LocalModel {
 			return;
 		}
 
-		if (callback)
-			callback(null);
+		axios({
+			'method': 'get',
+			'url': this.url + '/readInfo',
+			'params': {
+				'id': id
+			}
+		})
+		.then(response => {
+			// 에러 체크
+			if (!response.data.state) {
+				console.log('[LocalModel::moveToSubject] Fail to fetch data.');
+				console.log(response.data.msg);
+				if (callback)
+					callback(null);
+				return ;
+			}
+
+			// 토폴로지를 다시 재조립해준다.
+			// 원리는 다음과 같다.
+			// 1. 모든 Info를 일단 등록한다.
+			// 2. edges를 순회하며 연결해준다.
+			// 3. root를 this.wp에 등록한다.
+			let myJson = response.data;
+
+			// phase 1)
+			let nodes = myJson.nodes.map(pInfo => {
+				// 새 Info 할당
+				let newNode = this.__allocateInfo(pInfo.name, []);
+				newNode.id = pInfo.id;
+
+				// 속성 등록
+				pInfo.attrs.forEach(pAttr => {
+					this.__appendAttr(newNode, pAttr.prefix, 
+						pAttr.content, pAttr.postfix, pAttr.id);
+				});
+
+				return newNode;
+			});
+
+			// phase 2)
+			myJson.edges.forEach(pair => {
+				this.__appendInfo(nodes[pair[0]], nodes[pair[1]]);
+			});
+
+			// phase 3)
+			this.wp = nodes[0];
+
+			if (callback)
+				callback(this.wp);
+		})
+		.catch(err => {
+			console.log('[LocalModel::moveToSubject] Fail to fetch data.');
+			console.log(err);
+			if (callback)
+				callback(null);
+		});
 	}
 
 	/*
@@ -194,6 +304,8 @@ class LocalModel {
 		새 과목을 추가하고 wp를 그 과목으로 이동시킨다.
 		그 과정에서 AJAX 통신이 발생한다.
 
+		devmode에서는 아무렇게나 ID를 부여한다.
+
 		String   name
 			새 과목의 이름
 
@@ -202,18 +314,50 @@ class LocalModel {
 			인자로 wp Info를 준다.
 	*/
 	createSubject(name, callback) {
-		console.warn('함수가 미구현 상태입니다');
+		if (this.devmode) {
+			let newInfo = this.__allocateInfo(name);
+			newInfo.id = `${(new Date()).getTime()}`;
+			this.wp = newInfo;
 
-		// 새 주제를 추가한다.
-		let newInfo = new Info([name], []);
-		this.infos[newInfo.jsid] = newInfo;
-		
+			if (callback)
+				callback(this.wp);
+			return ;
+		}
+
 		// 서버에 주제를 추가하고 id값을 받아온다.
-		// newInfo.id = server.createSubject(newInfo);
+		// Fake Server인 경우 get으로 바꿔줘야 동작한다.
+		axios({
+			'method': 'post',
+			'url': this.url + '/createInfo',
+			'data': {
+				'name': name,
+				'parentId': null
+			}
+		})
+		.then(response => {
+			// 에러 체크
+			if (!response.data.state) {
+				console.log('[LocalModel::createSubject] Fail to update data.');
+				console.log(response.data.msg);
+				if (callback)
+					callback(null);
+				return ;
+			}
 
-		this.wp = newInfo;
-		if (callback)
-			callback(this.wp);
+			// 새 주제를 추가한다.
+			let newInfo = this.__allocateInfo(name);
+			newInfo.id = response.data.id;
+			this.wp = newInfo;
+
+			if (callback)
+				callback(this.wp);
+		})
+		.catch(err => {
+			console.log('[LocalModel::createSubject] Fail to fetch data.');
+			console.log(err);
+			if (callback)
+				callback(null);
+		});
 	}
 
 	/*
@@ -230,22 +374,56 @@ class LocalModel {
 			인자로 wp Info를 준다.
 	*/
 	createInfo(name, callback) {
-		console.warn('함수가 미구현 상태입니다');
 		if (this.wp == null)
 			return;
 
-		// 새 주제를 추가하고 부모와 연결한다.
-		let newInfo = new Info([name], []);
-		this.infos[newInfo.jsid] = newInfo;
-		this.wp.childs.push(newInfo);
-		newInfo.parent = this.wp;
+		// 개발모드에서는 아무렇게나 id를 부여한다.
+		if (this.devmode) {
+			let newInfo = this.__allocateInfo(name);
+			this.__appendInfo(this.wp, newInfo)
+			this.wp = newInfo;
+			this.wp.id = `${(new Date()).getTime()}`;
+
+			if (callback)
+				callback(this.wp);
+			return ;
+		}
 		
 		// 서버에 주제를 추가하고 id값을 받아온다.
-		// newInfo.id = server.createSubject(this.wp, newInfo);
+		// Fake Server인 경우 get으로 바꿔줘야 동작한다.
+		axios({
+			'method': 'post',
+			'url': this.url + '/createInfo',
+			'data': {
+				'name': name,
+				'parentId': this.wp.id
+			}
+		})
+		.then(response => {
+			// 에러 체크
+			if (!response.data.state) {
+				console.log('[LocalModel::createInfo] Fail to update data.');
+				console.log(response.data.msg);
+				if (callback)
+					callback(null);
+				return ;
+			}
 
-		this.wp = newInfo;
-		if (callback)
-			callback(this.wp);
+			// 새 주제를 추가하고 부모와 연결한다.
+			let newInfo = this.__allocateInfo(name);
+			this.__appendInfo(this.wp, newInfo)
+			this.wp = newInfo;
+			this.wp.id = response.data.id;
+
+			if (callback)
+				callback(this.wp);
+		})
+		.catch(err => {
+			console.log('[LocalModel::createInfo] Fail to fetch data.');
+			console.log(err);
+			if (callback)
+				callback(null);
+		});
 	}
 
 	/*
@@ -266,23 +444,79 @@ class LocalModel {
 			문장부호는 붙이지 않는다.
 			ex) 사과는 바보"다"
 
-		function(wp) callback
+		function(attr) callback
 			통신이 종료된 뒤 처리해야하는 로직
-			인자로 wp Info를 준다.
+			인자로 생성한 attr을 준다.
 	*/
 	createAttr(prefix, content, postfix, callback) {
-		console.warn('함수가 미구현 상태입니다');
 		if (this.wp == null)
 			return;
 
-		let newAttr = new Attr(this.wp, prefix, content, postfix);
-		this.wp.attrs.push(newAttr);
+		// 개발모드에서는 아무렇게나 ID를 부여한다.
+		if (this.devmode) {
+			let aid = `${(new Date()).getTime()}`;
+			let attr = this.__appendAttr(this.wp, prefix, content, postfix, aid);
 
-		// 서버에 속성을 추가한다.
-		// server.createAttr(this.wp, newAttr);
+			if (callback)
+				callback(attr);
+			return;
+		}
 
-		if (callback)
-			callback(this.wp);
+		// 서버에 속성을 추가하고 id값을 받아온다.
+		// Fake Server인 경우 get으로 바꿔줘야 동작한다.
+		axios({
+			'method': 'post',
+			'url': this.url + '/createAttr',
+			'data': {
+				'prefix': prefix,
+				'content': content,
+				'postfix': postfix,
+				'parentId': this.wp.id
+			}
+		})
+		.then(response => {
+			// 에러 체크
+			if (!response.data.state) {
+				console.log('[LocalModel::createAttr] Fail to update data.');
+				console.log(response.data.msg);
+				if (callback)
+					callback(null);
+				return ;
+			}
+
+			// 새 주제를 추가하고 부모와 연결한다.
+			let attr = this.__appendAttr(this.wp, prefix, content, postfix, response.data.aid);
+
+			if (callback)
+				callback(attr);
+		})
+		.catch(err => {
+			console.log('[LocalModel::createAttr] Fail to fetch data.');
+			console.log(err);
+			if (callback)
+				callback(null);
+		});
+	}
+
+	/*
+		DANGER ZONE
+	*/
+	__allocateInfo(name) {
+		let newInfo = new Info([name], []);
+		this.infos[newInfo.jsid] = newInfo;
+		return newInfo;
+	}
+
+	__appendInfo(parent, child) {
+		parent.childs.push(child);
+		child.parent = parent;
+	}
+
+	__appendAttr(info, prefix, content, postfix, aid) {
+		let newAttr = new Attr(info, prefix, content, postfix);
+		newAttr.id = aid;
+		info.attrs.push(newAttr);
+		return newAttr;
 	}
 };
 

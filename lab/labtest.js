@@ -1,31 +1,34 @@
 const LocalModel = require('../front/src/libs/localmodel');
 
-let lm = new LocalModel(true);
-console.assert(lm.wp == null);
+let algomode = true;
 
-// loadModel TEST
-//   should have wp as highest node
-//   i.e. no parent exists
-lm.moveToSubject('devmode');
-console.assert(lm.wp.parent == null);
+let lm = new LocalModel(algomode);
 
-// getCurrentInfo TEST
-//   In this hardcoded model, '국밥'
-//   should be appeared
-console.assert(lm.getCurrentInfo().names[0] == '국밥');
+if (algomode) {
+	// 알고리즘 및 뷰 개발용
+	lm.moveToSubject(null, null);
 
-// moveToChild TEST
-console.assert(lm.moveToChild(0).names[0] == '돼지국밥');
+	const Traveler = require('../front/src/libs/traveler');
+	const Quest = require('../front/src/libs/quest');
 
-// getCurrentPath TEST
-let p = lm.getCurrentPath();
-let q = ['국밥', '돼지국밥'];
-for (let i = 0; i < p.length; ++i) {
-	console.assert(p[i] == q[i]);
+	console.log(Quest.generate_selection_quest(lm.wp.childs[0].childs[0], 4 , 1, false));
+
+	console.log(Quest.generate_short_quest(lm.wp, 4));
+
+	let Q = Quest.generate_selection2_quest(lm.wp.childs[0].childs[0], 4);
+	console.log(Q);
+	console.log(Quest.evaluate(Q, ['2']));
 }
+else {
+	// axios 테스트 목적
+	lm.getSubjectsList(list => {
+		console.log(list);
+	});
 
-// moveToParent TEST
-console.assert(lm.moveToParent().names[0] == '국밥');
-console.assert(lm.moveToParent() == null);
-
-console.log(lm);
+	lm.moveToSubject(1, wp => {
+		lm.createInfo('선지국밥', wwp => {
+			lm.createAttr('은', '소피를 굳힌 것을 넣은 국밥', '이다');
+			console.log(wwp);
+		});
+	});
+}

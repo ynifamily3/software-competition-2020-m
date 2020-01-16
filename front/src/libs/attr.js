@@ -34,6 +34,7 @@ class Attr {
 		this.prefix = prefix;
 		this.content = content;
 		this.postfix = postfix;
+		this.id = null;
 	}
 
 	/*
@@ -54,10 +55,10 @@ class Attr {
 
 	/*
 		주어를 제외한 문장을 반환한다.
-		ex) "바보다."
+		ex) "는 바보다."
 	*/
-	getHintSentence() {
-		return this.content + this.postfix + '.';
+	getHintSentence(josa) {
+		return (josa ? this.prefix + ' ' : '') + this.content + this.postfix + '.';
 	}
 };
 

@@ -1,5 +1,5 @@
 const Info = require('./info');
-const Soup = require('./soup');
+const Traveler = require('./traveler');
 const Util = require('./util');
 const Queue = require('./queue');
 
@@ -70,16 +70,12 @@ Quest.evaluate = function(quest, response) {
 Quest.evaluator = {};
 
 // 참/거짓 유형 문제 생성
-Quest.generate_binary_quest = function(g, material) {
-	// let subinfos = Soup.fetch_subinfos([g]).filter(info => {
-	// 	return info.attrs.length > 0;
-	// });
-	// let material = Util.get_randomly(subinfos);
+Quest.generate_binary_quest = function(material) {
 	let ans = null;
 	let fact = null;
 	if(Math.random() > 0.5) {
 		ans = 'T';
-		fact = Soup.select_positive_attr(material);
+		fact = Traveler.selectPositiveAttrs(material, 1)[0].getFullSentence();
 	}
 	else {
 		ans = 'F';
@@ -87,12 +83,11 @@ Quest.generate_binary_quest = function(g, material) {
 		// 	fact = Soup.select_negative_attrs(material, 1);
 		// else
 		// 	fact = Soup.mutate_attr(Soup.select_positive_attr(material));
-		fact = Soup.select_negative_attrs(g, material, 1);
+		fact = material.names[0] + Traveler.selectNegativeAttrs(material, 1)[0].getHintSentence(true);
 	}
 	let name = Util.get_randomly(material.names);
 	return new Quest('binary', '다음 문장의 참/거짓을 판별하시오.',
-		`${material.names[0]}은(는) ${fact}`,
-		['T', 'F'], [ans], material);
+		fact, ['T', 'F'], [ans], material);
 };
 
 // 참거짓 채점기
@@ -117,40 +112,15 @@ Quest.evaluator['binary'] = function(quest, response) {
 Quest.generate_selection_quest = function(material, n, a, inv) {
 	let p = inv ? n - a : a;
 
-	// 부정 명제를 가져올 범위를 찾는다. 직접
-	// 명제의 수를 세기 때문에 최악의 경우 O(n^2)
-	// 의 시간 복잡도를 갖지만, n이 1000 미만이라 괜찮을듯.
-	// 그래도 최적화가 필요해 보인다
-	let g = material;
-	while(g.parents.length > 0) {
-		// 원리:
-		// 자신의 부모 아래의 모든 명제의 수에서 자신의 명제 수를 뺀
-		// 것이 선택할 수 있는 부정 명제의 수다.
-		// 그렇다면 이 수가 가장 큰 부모를 찾아서, 필요한 부정 명제의
-		// 수를 넘을 때까지 거슬러 올라가면 된다.
-		let maxv = -1;
-		let maxp = null;
-		g.parents.forEach(parent => {
-			let newv = Soup.total_attrs_count([parent]) - g.attrs.length;
-			if(maxv < newv) {
-				maxv = newv;
-				maxp = parent;
-			}
-		});
-		if(maxp == null)
-			break;
-		g = maxp;
-		if(maxv >= n - p)
-			break;
-	}
-
 	// 정답 선택지 만들기
-	let pos = Soup.select_positive_attrs(material, p);
+	let pos = Traveler.selectPositiveAttrs(material, p);
 
 	// 오답 선택지 만들기
-	let neg = Soup.select_negative_attrs(g, material, n - p);
+	let neg = Traveler.selectNegativeAttrs(material, n - p);
 
-	// 선택지 합치기
+	// 선택지 만들기
+	// 일단 정답부터 만들고, attr 개체를 string으로 변환한다.
+	// 섞고, pos가 있는 위치들을 찾고, pos와 neg를 문장으로 변환.
 	let choices = Util.shuffle(pos.concat(neg), false);
 	let answers = null;
 	if(inv)
@@ -162,6 +132,9 @@ Quest.generate_selection_quest = function(material, n, a, inv) {
 			return `${choices.indexOf(attr)}`;
 		});
 	let name = Util.get_randomly(material.names);
+	choices = choices.map(attr => {
+		return attr.getHintSentence(false);
+	});
 
 	// 표현
 	let logic_label = inv ? '옳지 않은 것' : '옳은 것';
@@ -173,11 +146,11 @@ Quest.generate_selection_quest = function(material, n, a, inv) {
 // n지선다 채점기
 // 답을 모두 맞춰야 함
 Quest.evaluator['selection'] = function(quest, response) {
-	if(quest.answers.length != reponse.length)
+	if(quest.answers.length != response.length)
 		return false;
 	quest.answers.sort();
 	response.sort();
-	for(let i = 0; i < response.length(); ++i)
+	for(let i = 0; i < response.length; ++i)
 		if(quest.answers[i] != response[i])
 			return false;
 	return true;
@@ -189,11 +162,11 @@ Quest.generate_short_quest = function(material, n) {
 	// 뻑나지 않도록 한다.
 	if(material.attrs.length < n)
 		n = material.attrs.length;
-	let attrs = Soup.select_positive_attrs(material, n);
+	let attrs = Traveler.selectPositiveAttrs(material, n);
 	let title = '다음이 설명하는 것을 적으시오.';
 	let stmt = '';
 	attrs.forEach(attr => {
-		stmt += '\n * ' + attr;
+		stmt += '\n * ' + attr.getHintSentence(false);
 	});
 	return new Quest('short', title, stmt, [], material.names, material);
 };
@@ -228,46 +201,12 @@ Quest.generate_selection2_quest = function(material, n) {
 	let title = '다음이 설명하는 것으로 알맞은 것을 고르시오.';
 	let stmt = '';
 	pos.attrs.forEach(attr => {
-		stmt += '\n * ' + attr;
+		stmt += '\n * ' + attr.getHintSentence(false);
 	});
 
 	// 오답 선택지 찾기
-	// 자기 자식을 전부 discard 시키기
-	let history = {};
-	let neg_infos = [];
-	Soup.for_each_childs_pre([material], root => {
-		history[root.jsid] = 1;
-	});
-	material.parents.forEach(parent => {
-		q.push(parent);
-	});
-	while(!q.empty() && neg_infos.length < n - 1) {
-		// 부모를 뽑아서 그 자식들을 neg_infos에 집어넣는다.
-		let current = q.pop();
-		if(history[current.jsid])
-			continue;
-		history[current.jsid] = 1;
-
-		// for every child except history[id] > 0
-		current.childs.forEach(child => {
-			if(history[child.jsid])
-				return;
-			if(neg_infos.length >= n - 1)
-				return;
-			neg_infos.push(child);
-			q.push(child);
-		})
-		if(neg_infos.length >= n - 1)
-			break;
-		current.parents.forEach(parent => {
-			if(history[parent.jsid])
-				return;
-			q.push(parent);
-		});
-	}
-	if(neg_infos.length < n - 1)
-		throw new Error('[Quest::generate_selection2_quest] Fail to make quest as there are not enough infos');
-
+	let neg_infos = Traveler.selectNegativeInfos(material);
+	
 	// 선택지 합치기
 	neg_infos.push(pos)
 	Util.shuffle(neg_infos, false);
@@ -277,7 +216,7 @@ Quest.generate_selection2_quest = function(material, n) {
 	let answers = [`${neg_infos.indexOf(material)}`];
 
 	// 표현
-	return new Quest('selection2', title, stmt, choices, answers, material);
+	return new Quest('selection', title, stmt, choices, answers, material);
 };
 
 module.exports = Quest;
