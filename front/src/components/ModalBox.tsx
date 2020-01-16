@@ -15,8 +15,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     modal: {
       width: '80%',
+      minWidth: '400px',
+      maxWidth: '500px',
       height: '300px',
-      color: theme.palette.warning.light,
+      color: 'white',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-around',
@@ -27,6 +29,8 @@ const useStyles = makeStyles((theme: Theme) =>
     subjectWord: {
       flex: 3,
       textAlign: 'center',
+      // fontSize: '5vw',
+      fontSize: '1.5em',
     },
     modalLine: {
       display: 'flex',
@@ -39,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
     postpositionWords: {
       display: 'flex',
       flexDirection: 'row',
-      flex: 7,
+      flex: 9,
       justifyContent: 'space-around',
     },
     postpositionWord: {
@@ -60,8 +64,20 @@ const useStyles = makeStyles((theme: Theme) =>
     keyPhrase: {
       width: '100%',
     },
-    pastNeg: {},
-    cboxWrapper: {},
+    pastNeg: {
+      flexDirection: 'column',
+      flex: 1,
+    },
+    cboxWrapper: {
+      marginBottom: '5px',
+    },
+    buttonWrapper: {
+      // width: '100%',
+      height: '30px',
+      textAlign: 'center',
+      margin: 'auto 10px',
+      flex: 1,
+    },
   }),
 );
 
@@ -109,23 +125,86 @@ function ModalBox({ subjectWord, keyPhrase }: ModalProps) {
               <div className={classes.postpositionWord}>된다</div>
               <div className={classes.postpositionWord}>있다</div>
               <div className={classes.postpositionWord}>다</div>
-              <div className={classes.pastNeg}>
-                <div className={classes.cboxWrapper}>
-                  <span>과거</span>
-                </div>
-                <div className={classes.cboxWrapper}>
-                  <span>부정</span>
-                </div>
+            </div>
+            <div className={classes.pastNeg}>
+              <div className={classes.cboxWrapper}>
+                <span>과거 </span>
+                <span>□</span>
+              </div>
+              <div className={classes.cboxWrapper}>
+                <span>부정 </span>
+                <span>■</span>
               </div>
             </div>
           </div>
           <div className={classes.modalLine}>
-            <div>
-              <button>취소</button>
+            <div className={classes.buttonWrapper}>
+              <button
+                style={{
+                  all: 'unset',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  height: '100%',
+                }}
+              >
+                취소
+              </button>
             </div>
-            <div>
-              <button>확인</button>
+            <div className={classes.buttonWrapper}>
+              <button
+                style={{
+                  all: 'unset',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  height: '100%',
+                }}
+              >
+                삭제
+              </button>
             </div>
+            <div className={classes.buttonWrapper}>
+              <button
+                style={{
+                  all: 'unset',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  height: '100%',
+                }}
+              >
+                수정
+              </button>
+            </div>
+            {/*
+            <div className={classes.buttonWrapper}>
+              <button
+                style={{
+                  all: 'unset',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  height: '100%',
+                }}
+              >
+                취소
+              </button>
+            </div>
+            <div className={classes.buttonWrapper}>
+              <button
+                style={{
+                  all: 'unset',
+                  width: '100%',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  height: '100%',
+                }}
+              >
+                확인
+              </button>
+            </div>
+*/}
           </div>
         </div>
       </div>
