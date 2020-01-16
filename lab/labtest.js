@@ -1,6 +1,6 @@
 const LocalModel = require('../front/src/libs/localmodel');
 
-let algomode = false;
+let algomode = true;
 
 let lm = new LocalModel(algomode);
 
@@ -20,6 +20,9 @@ else {
 	});
 
 	lm.moveToSubject(1, wp => {
-		console.log(wp);
+		lm.createInfo('선지국밥', wwp => {
+			lm.createAttr('은', '소피를 굳힌 것을 넣은 국밥', '이다');
+			console.log(wwp);
+		});
 	});
 }
