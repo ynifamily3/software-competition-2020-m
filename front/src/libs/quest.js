@@ -71,10 +71,6 @@ Quest.evaluator = {};
 
 // 참/거짓 유형 문제 생성
 Quest.generate_binary_quest = function(material) {
-	// let subinfos = Soup.fetch_subinfos([g]).filter(info => {
-	// 	return info.attrs.length > 0;
-	// });
-	// let material = Util.get_randomly(subinfos);
 	let ans = null;
 	let fact = null;
 	if(Math.random() > 0.5) {
@@ -115,13 +111,11 @@ Quest.evaluator['binary'] = function(quest, response) {
 // inv: 옳은/옳지 않은
 Quest.generate_selection_quest = function(material, n, a, inv) {
 	let p = inv ? n - a : a;
-	let g = material;
 
 	// 정답 선택지 만들기
 	let pos = Traveler.selectPositiveAttrs(material, p);
 
 	// 오답 선택지 만들기
-	//let neg = Soup.select_negative_attrs(g, material, n - p);
 	let neg = Traveler.selectNegativeAttrs(material, n - p);
 
 	// 선택지 만들기
@@ -152,11 +146,11 @@ Quest.generate_selection_quest = function(material, n, a, inv) {
 // n지선다 채점기
 // 답을 모두 맞춰야 함
 Quest.evaluator['selection'] = function(quest, response) {
-	if(quest.answers.length != reponse.length)
+	if(quest.answers.length != response.length)
 		return false;
 	quest.answers.sort();
 	response.sort();
-	for(let i = 0; i < response.length(); ++i)
+	for(let i = 0; i < response.length; ++i)
 		if(quest.answers[i] != response[i])
 			return false;
 	return true;
@@ -168,11 +162,11 @@ Quest.generate_short_quest = function(material, n) {
 	// 뻑나지 않도록 한다.
 	if(material.attrs.length < n)
 		n = material.attrs.length;
-	let attrs = Soup.select_positive_attrs(material, n);
+	let attrs = Traveler.selectPositiveAttrs(material, n);
 	let title = '다음이 설명하는 것을 적으시오.';
 	let stmt = '';
 	attrs.forEach(attr => {
-		stmt += '\n * ' + attr;
+		stmt += '\n * ' + attr.getHintSentence(false);
 	});
 	return new Quest('short', title, stmt, [], material.names, material);
 };
@@ -207,46 +201,12 @@ Quest.generate_selection2_quest = function(material, n) {
 	let title = '다음이 설명하는 것으로 알맞은 것을 고르시오.';
 	let stmt = '';
 	pos.attrs.forEach(attr => {
-		stmt += '\n * ' + attr;
+		stmt += '\n * ' + attr.getHintSentence(false);
 	});
 
 	// 오답 선택지 찾기
-	// 자기 자식을 전부 discard 시키기
-	let history = {};
-	let neg_infos = [];
-	Soup.for_each_childs_pre([material], root => {
-		history[root.jsid] = 1;
-	});
-	material.parents.forEach(parent => {
-		q.push(parent);
-	});
-	while(!q.empty() && neg_infos.length < n - 1) {
-		// 부모를 뽑아서 그 자식들을 neg_infos에 집어넣는다.
-		let current = q.pop();
-		if(history[current.jsid])
-			continue;
-		history[current.jsid] = 1;
-
-		// for every child except history[id] > 0
-		current.childs.forEach(child => {
-			if(history[child.jsid])
-				return;
-			if(neg_infos.length >= n - 1)
-				return;
-			neg_infos.push(child);
-			q.push(child);
-		})
-		if(neg_infos.length >= n - 1)
-			break;
-		current.parents.forEach(parent => {
-			if(history[parent.jsid])
-				return;
-			q.push(parent);
-		});
-	}
-	if(neg_infos.length < n - 1)
-		throw new Error('[Quest::generate_selection2_quest] Fail to make quest as there are not enough infos');
-
+	let neg_infos = Traveler.selectNegativeInfos(material);
+	
 	// 선택지 합치기
 	neg_infos.push(pos)
 	Util.shuffle(neg_infos, false);
@@ -256,7 +216,7 @@ Quest.generate_selection2_quest = function(material, n) {
 	let answers = [`${neg_infos.indexOf(material)}`];
 
 	// 표현
-	return new Quest('selection2', title, stmt, choices, answers, material);
+	return new Quest('selection', title, stmt, choices, answers, material);
 };
 
 module.exports = Quest;

@@ -12,6 +12,12 @@ if (algomode) {
 	const Quest = require('../front/src/libs/quest');
 
 	console.log(Quest.generate_selection_quest(lm.wp.childs[0].childs[0], 4 , 1, false));
+
+	console.log(Quest.generate_short_quest(lm.wp, 4));
+
+	let Q = Quest.generate_selection2_quest(lm.wp.childs[0].childs[0], 4);
+	console.log(Q);
+	console.log(Quest.evaluate(Q, ['2']));
 }
 else {
 	// axios 테스트 목적
