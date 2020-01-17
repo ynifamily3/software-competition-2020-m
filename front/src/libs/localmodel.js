@@ -1,6 +1,6 @@
 const Info = require('./info');
 const Attr = require('./attr');
-const axios = require('./axios/axios.min');
+const axios = require('axios').default;
 
 /*
 	LocalModel은 클라이언트에서 다루는 주제 트리와
