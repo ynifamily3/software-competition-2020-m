@@ -15,6 +15,17 @@ import styles from './MySubjects.module.scss';
 interface Chilprops {
   docs: string[];
 }
+interface submodprops {
+  subjects: {
+    name: string;
+    id: number;
+  }[];
+  model: any;
+}
+interface Subjectsprops {
+  name: string;
+  id: number;
+}
 
 function Attrs({ children }: any) {
   return <React.Fragment>{children}</React.Fragment>;
@@ -26,15 +37,15 @@ function Attr({ children }: any) {
 
 function Chils({ docs }: Chilprops) {
   return (
-    <ul>
+    <ul className={styles['Mysubjects--chils']}>
       {docs.map((x, i) => {
         return (
           <li key={'docs--'.concat(i.toString())}>
-            <div>
+            <div className={styles['Mysubjects--chil-wrapper']}>
               <div>
                 <Icon
                   path={mdiFileDocumentBoxOutline}
-                  size={1}
+                  size={2}
                   // size prop 제거 (scss에서 사용)
                   title="arrow"
                   rotate={0}
@@ -47,11 +58,11 @@ function Chils({ docs }: Chilprops) {
         );
       })}
       <li>
-        <div>
+        <div className={styles['Mysubjects--chil-wrapper-2']}>
           <div>
             <Icon
               path={mdiFileDocumentBoxPlusOutline}
-              size={1}
+              size={2}
               // size prop 제거 (scss에서 사용)
               title="arrow"
               rotate={0}
@@ -65,30 +76,34 @@ function Chils({ docs }: Chilprops) {
   );
 }
 
-function MySubjects(props: any) {
+function MySubjects({ subjects, model }: submodprops) {
+  // model은 read-only이고, model.wp 값에 따라 렌더링이 달라짐.
+  console.log(model);
   return (
     <div className={styles['MySubjects']}>
       <header>
         <Gnb />
       </header>
       <article className={styles['MySubjects--article']}>
-        <Attrs>
-          <ul>
-            <Attr>즐겁다</Attr>
-            <Attr>인생에 도움이 안 된다.</Attr>
-          </ul>
-          <span>
-            <Icon
-              path={mdiPlus}
-              size={1}
-              // size prop 제거 (scss에서 사용)
-              title="arrow"
-              rotate={0}
-              color="black"
-            />
-          </span>
-          <input type="search" placeholder="설명 추가하기..." />
-        </Attrs>
+        {model.wp && (
+          <Attrs>
+            <ul>
+              <Attr>즐겁다</Attr>
+              <Attr>인생에 도움이 안 된다.</Attr>
+            </ul>
+            <span>
+              <Icon
+                path={mdiPlus}
+                size={1}
+                // size prop 제거 (scss에서 사용)
+                title="arrow"
+                rotate={0}
+                color="black"
+              />
+            </span>
+            <input type="search" placeholder="설명 추가하기..." />
+          </Attrs>
+        )}
         {/*         
         <ul>
           <li>
@@ -114,7 +129,12 @@ function MySubjects(props: any) {
           />
         </span>
         <input type="search" placeholder="설명 추가하기..." /> */}
-        <Chils docs={['역사']} />
+        <Chils
+          docs={subjects.map((x, i) => {
+            return x.name;
+          })}
+        />
+        {/* <Chils docs={['s', 'd', 'f', 'f', 'sfjeowfjwofwfj']} /> */}
         <div className={styles['Mysubjects--solve-button-wrapper']}>
           <button className={styles['Mysubjects--solve-button']}>
             문제풀기

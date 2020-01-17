@@ -52,7 +52,7 @@ function Gnb({ path }: Pathprops) {
 }
 
 Gnb.defaultProps = {
-  path: ['내 주제', '재능낭비'],
+  path: ['내 주제'],
 };
 
 export default Gnb;
