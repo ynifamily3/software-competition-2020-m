@@ -13,6 +13,10 @@ const AttrSchema = new Schema({
 	postfix:{
 		type:String,
 		default:""
+	},
+	parentId:{
+		type:mongoose.Schema.Types.ObjectId,
+		ref:'Info'
 	}
 });
 

@@ -11,7 +11,8 @@ exports.makeInfo = (res,infoName,parent) => {
 					let newInfo=new Info({
 						name:infoName,
 						attrs:[],
-						childs:[]
+						childs:[],
+						parentId:null
 					})
 					newInfo.save()
 						.then((info)=>{
@@ -62,6 +63,7 @@ exports.makeInfo = (res,infoName,parent) => {
 						name:infoName,
 						attrs:[],
 						childs:[],
+						parentId:parent._id
 					})
 					await newInfo.save()
 						.then(async (info)=>{
@@ -125,9 +127,94 @@ exports.makeAttr = (res,prefix,content,postfix,parentId)=>{
 
 exports.modifyInfo = (res,name,id)=>{
 
-	Info.findOne({_id:id})
-		.then((info)=>{
+	console.log("dfdfdfdfadfdas")
+	Info.findOne({_id:id})//.populate('parentId')
+		.then(async (info)=>{
+			console.log(info)
+			console.log('-------------------------------------------ccc-')
 
+			if(info.parentId!=null){
+				Info.findOne({_id:info.parentId}).populate('childs')
+					.then(async(parent)=>{
+						for(child of parent.childs){
+							if(child.name==name){
+								return res.json({
+									state:false,
+									msg:'Same InfoName'
+								})
+							}
+						}
+
+						await Info.findOneAndUpdate({_id:info._id},{'name':name})
+							.then((info)=>{
+								return res.json({
+									state:true,
+									msg:'Success'
+								})
+							})
+							.catch((err)=>{
+								return res.json({
+									state:false,
+									msg:'Info Not Found or Update error'
+								})
+							})
+					})
+					.catch((err)=>{
+						return res.json({
+							state:false,
+							msg:'Parent Not Found'
+						})
+					})
+			} else {
+				Info.find({parentId:null})
+					.then(async(subjects)=>{
+						for(info of subjects){
+							if(info.name==name){
+								return res.json({
+									state:false,
+									msg:'Same InfoName'
+								})
+							}
+						}
+
+						await Info.findOneAndUpdate({_id:id},{'name':name})
+							.then((info)=>{
+								return res.json({
+									state:true,
+									msg:'Succes'
+								})
+							})
+							.catch((err)=>{
+								return res.json({
+									state:false,
+									msg:'Info Not Found or Update error'
+								})
+							})
+					})
+			}
 		})
+		.catch((err)=>{
+			return res.json({
+				state:false,
+				msg:'Info Not Found'
+			})
+		})
+}
 
+exports.modifyAttr = (res,prefix,content,postfix,aid)=>{
+	console.log('modi attr')
+	Attr.findOneAndUpdate({_id:aid},{'prefix':prefix,'content':content,'postfix':postfix})
+		.then((info)=>{
+			console.log(info)
+			return res.json({
+				state:true,
+				msg:'Success'
+			})
+		})
+		.catch((err)=>{
+			return res.json({
+				state:false,
+				msg:'Info Not Found or Update error'
+			})
+		})
 }

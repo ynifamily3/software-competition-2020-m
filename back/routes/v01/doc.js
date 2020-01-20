@@ -29,13 +29,18 @@ router.post('/modifyInfo',(req,res,next)=>{
 	//	console.log(`name ${req.body.name}`);
 	//console.log(`id ${req.body.parentId}`);
 	//
-	return docManage.modifyInfo(res,req.body.name,req.body.id);
+	console.log("dfdfdfcvcvcxnjkfas;klrtel;r")
+	return docManager.modifyInfo(res,req.body.name,req.body.id);
 
 	//	return res.json({
 	//		state:"Boolean",
 	//	msg:"String"
 	//	})
 });
+
+router.post('/modifyAttr',(req,res,next)=>{
+	return docManager.modifyAttr(res,req.body.prefix,req.body.content,req.body.postfix,req.body.aid);
+})
 
 router.delete('/deleteInfo',(req,res,next)=>{
 	

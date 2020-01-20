@@ -8,7 +8,8 @@ const InfoSchema = new Schema({
 		default:""
 	},
 	attrs:[{type:mongoose.Schema.Types.ObjectId,ref:'Attr'}],
-	childs:[{type:mongoose.Schema.Types.ObjectId,ref:'Info'}]
+	childs:[{type:mongoose.Schema.Types.ObjectId,ref:'Info'}],
+	parentId:{type:mongoose.Schema.Types.ObjectId,ref:'Info'}
 });
 
 module.exports = mongoose.model('Info',InfoSchema,'Info');
