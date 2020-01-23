@@ -73,11 +73,10 @@ Quest.evaluator = {};
 Quest.generate_binary_quest = function(material) {
 	let ans = null;
 	let fact = null;
-	if(Math.random() > 0.5) {
-		ans = 'T';
-		fact = Traveler.selectPositiveAttrs(material, 1)[0].getFullSentence();
-	}
-	else {
+
+	// 부모가 없음, 즉 루트인 경우 부정명제를 가져올 수 없다.
+	// 따라서 이 경우 항상 참인 명제만 선택하게 한다.
+	if(material.parent != null && Math.random() > 0.5) {
 		ans = 'F';
 		//if(Math.random() > 0.5)
 		// 	fact = Soup.select_negative_attrs(material, 1);
@@ -85,6 +84,11 @@ Quest.generate_binary_quest = function(material) {
 		// 	fact = Soup.mutate_attr(Soup.select_positive_attr(material));
 		fact = material.names[0] + Traveler.selectNegativeAttrs(material, 1)[0].getHintSentence(true);
 	}
+	else {
+		ans = 'T';
+		fact = Traveler.selectPositiveAttrs(material, 1)[0].getFullSentence();
+	}
+	
 	let name = Util.get_randomly(material.names);
 	return new Quest('binary', '다음 문장의 참/거짓을 판별하시오.',
 		fact, ['T', 'F'], [ans], material);

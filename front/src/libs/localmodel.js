@@ -1,5 +1,6 @@
 const Info = require('./info');
 const Attr = require('./attr');
+const Mocktest = require('./mocktest');
 const axios = require('axios').default;
 
 /*
@@ -46,10 +47,12 @@ class LocalModel {
 			[{name: '주제명', id: '주제id'}]
 	*/
 	getSubjectsList(callback) {
-		if (this.devmode && callback)
-			callback([{'name': '국밥', id: 1}]);
-
-		if (!this.devmode)
+		if (this.devmode)
+		{
+			if (callback)
+				window.setTimeout(() => { callback([{'name': '국밥', id: 1}]); }, 0);
+		}
+		else
 		{
 			// 요청 !
 			axios({
@@ -134,7 +137,7 @@ class LocalModel {
 			// 이거 나중에 Promise로 안바꾸면 재앙이
 			// 벌어질 것 같은 구조인데\
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return;
 		}
 
@@ -320,7 +323,7 @@ class LocalModel {
 			this.wp = newInfo;
 
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return ;
 		}
 
@@ -385,7 +388,7 @@ class LocalModel {
 			this.wp.id = `${(new Date()).getTime()}`;
 
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return ;
 		}
 		
@@ -458,7 +461,7 @@ class LocalModel {
 			let attr = this.__appendAttr(this.wp, prefix, content, postfix, aid);
 
 			if (callback)
-				callback(attr);
+				window.setTimeout(() => { callback(attr); }, 0);
 			return;
 		}
 
@@ -496,6 +499,17 @@ class LocalModel {
 			if (callback)
 				callback(null);
 		});
+	}
+
+	/*
+		현재 위치를 소재로 n개의 문제를 가진 모의고사를 만들어
+		반환한다.
+
+		어지간하면 안터지는데, 특이케이스(모든 지식의 속성이 0개인 경우)
+		에는 터질 수도 있어서 try catch문 사용 요망...
+	*/
+	createMocktest(n) {
+		return Mocktest.create_mocktest(this.wp, n);
 	}
 
 	/*
