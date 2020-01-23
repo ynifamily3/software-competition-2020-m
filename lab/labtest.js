@@ -8,8 +8,7 @@ let lm = new LocalModel(algomode);
 if (algomode) {
 	// 알고리즘 및 뷰 개발용
 	lm.moveToSubject('국밥', (wp => {
-		let mocktest = Mocktest.create_mocktest(wp, 4);
-		console.log(mocktest);
+		console.log(lm.createMocktest(8));
 	}));
 }
 else {

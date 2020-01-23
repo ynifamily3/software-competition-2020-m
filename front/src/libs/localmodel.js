@@ -1,5 +1,6 @@
 const Info = require('./info');
 const Attr = require('./attr');
+const Mocktest = require('./mocktest');
 const axios = require('axios').default;
 
 /*
@@ -498,6 +499,17 @@ class LocalModel {
 			if (callback)
 				callback(null);
 		});
+	}
+
+	/*
+		현재 위치를 소재로 n개의 문제를 가진 모의고사를 만들어
+		반환한다.
+
+		어지간하면 안터지는데, 특이케이스(모든 지식의 속성이 0개인 경우)
+		에는 터질 수도 있어서 try catch문 사용 요망...
+	*/
+	createMocktest(n) {
+		return Mocktest.create_mocktest(this.wp, n);
 	}
 
 	/*
