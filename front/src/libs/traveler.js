@@ -99,7 +99,6 @@ Traveler.selectNegativeAttrs = function(material, n) {
 	infos.forEach(info => {
 		attrs = attrs.concat(info.attrs);
 	});
-	console.log(attrs);
 
 	if (n <= 1)
 		return [Util.get_randomly(attrs)];
