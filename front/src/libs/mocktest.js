@@ -1,5 +1,5 @@
 const Info = require('./info');
-const Soup = require('./soup');
+const Traveler = require('./traveler');
 const Quest = require('./quest');
 const Util = require('./util');
 
@@ -27,19 +27,25 @@ class Mocktest {
 	}
 }
 
-// subinfos에서 n개의 문제를 출제한다.
+// root를 루트로 갖는 서브트리에서 n개의 문제를 출제한다.
 // 최대한 비슷한 수의 문제가 출제되도록 하되
 // 정확하게 나누어 떨어지지 않는 경우엔 균등
 // 분포로 무작위로 고른다.
-Mocktest.select_test_materials = function(roots, n) {
+Mocktest.select_test_materials = function(root, n) {
 	// 안전장치
 	if(n <= 0)
 		return [];
 
 	// 재료를 찾는다.
-	let subinfos = Soup.fetch_subinfos(roots).filter(info => {
-		return info.attrs.length > 0 && roots.indexOf(info) == -1;
+	// let subinfos = Soup.fetch_subinfos(roots).filter(info => {
+	// 	return info.attrs.length > 0 && roots.indexOf(info) == -1;
+	// });
+	let subinfos = [];
+	Traveler.forEachPre(root, (info) => {
+		if (info.attrs.length > 0)
+			subinfos.push(info);
 	});
+
 
 	// 초기화
 	let ratio = [];
@@ -68,58 +74,91 @@ Mocktest.select_test_materials = function(roots, n) {
 	return Util.shuffle(out, false);
 }
 
-// Info[] 	roots 	문제 출제 범위
+// Info 	roots 	문제 출제 범위
 // Number 	n 		문제 출제 수
-Mocktest.create_mocktest = function(roots, n) {
+Mocktest.create_mocktest = function(root, n) {
 	// 문제 출제 범위 생성
-	let domains = Mocktest.select_test_materials(roots, n);
+	let domains = Mocktest.select_test_materials(root, n);
 	
 	let quest_types = [];
-	quest_types[0] = Math.floor(n / 4.0);
-	quest_types[1] = Math.floor(n / 4.0);
-	quest_types[2] = Math.floor(n / 4.0);
-	quest_types[3] = n 
-		- quest_types[0]
-		- quest_types[1]
-		- quest_types[2];
+
+	// 4문제보다 적은 경우 그냥 n-1번째 유형까지만 만든다.
+	if (n < 4) {
+		for (let k = 0; k < n; ++k)
+			quest_types[k] = 1;
+	}
+	else {
+		quest_types[0] = Math.floor(n / 4.0);
+		quest_types[1] = Math.floor(n / 4.0);
+		quest_types[2] = Math.floor(n / 4.0);
+		quest_types[3] = n 
+			- quest_types[0]
+			- quest_types[1]
+			- quest_types[2];
+	}
 
 	// 각 유형별로 문제를 만든다.
 	let quests = [];
 	let type_ptr = 0;
 	for(let k = 0; k < n; ++k) {
 		// 현재 유형을 다 만들면 다음 유형으로 넘어간다.
-		if(quest_types[type_ptr]-- <= 0)
+		if(quest_types[type_ptr]-- <= 0) {
 			++type_ptr;
+			--k;
+			continue;
+		}
 		console.assert(type_ptr < quest_types.length);
 
 		// 각 유형에 맞는 문제를 만든다.
-		//
-		// n지선다 만들 때 이슈가 있는데, 속성의 수가 너무
-		// 적은 경우나 부정명제를 못가져오는 상황인 경우
-		// 에러가 난다.
-		//
-		// 이는 루트를 선택하지 못하게 select_test_material을
-		// 수정하고, 유저로부터 강제로 3개 이상을 입력하도록
-		// 함으로서 해결할 수 있다. 19년 9월 10일 기준 미반영
 		let new_quest = null;
-		try {
-			if(type_ptr == 0)
-				new_quest = Quest.generate_binary_quest(roots[0], domains[k]);
-			else if(type_ptr == 1) 
-				new_quest = Quest.generate_selection_quest(domains[k], 4, 1, Math.random() > 0.5);
-			else if(type_ptr == 2)
-				new_quest = Quest.generate_short_quest(domains[k], 4);
-			else if(type_ptr == 3)
-				new_quest = Quest.generate_selection2_quest(domains[k], 4);
-			else
-				throw new Error('Illegal Quest Type Included: ' + type_ptr);
+		if(type_ptr == 0) {
+			new_quest = Quest.generate_binary_quest(domains[k]);
 		}
-		catch(err) {
-			console.log('[Mocktest::create_mocktest] Fail to create question of')
-			console.log(domains[k]);
-			console.log(err);
-			new_quest = null;
+		else if(type_ptr == 2) {
+			new_quest = Quest.generate_short_quest(domains[k], 4);
 		}
+		else {
+			// 4지선다형은 루트를 소재로 할 수 없기 때문에
+			// 만약 루트가 걸릴 경우 1. 자식 중 아무나 선택
+			// 2. 자식이 없으면 다른 유형으로 변경 한다.
+			if (domains[k].parent == null) {
+				if (domains[k].childs.length > 0) {
+					let feasible = domains[k].childs.filter(child => {
+						return child.attrs.length >= 1;
+					});
+
+					// 자식으로 쓸만한 애가 없으면 그냥 다른 유형으로 만든다
+					if (feasible.length == 0) {
+						if (Math.random() > 0.5)
+							new_quest = Quest.generate_binary_quest(domains[k]);
+						else
+							new_quest = Quest.generate_short_quest(domains[k], 4);
+					} else {
+						domains[k] = Util.get_randomly(feasible);
+					}
+				}
+				else {
+					if (Math.random() > 0.5)
+						new_quest = Quest.generate_binary_quest(domains[k]);
+					else
+						new_quest = Quest.generate_short_quest(domains[k], 4);
+				}
+			}
+
+			// 예외 생성이 아닌 경우, 정상적으로 문제를 만든다.
+			if (new_quest == null) {
+				if(type_ptr == 1) {
+					// 옳지 않은 것을 고를 때는 최소한 올바른 속성이 3개 이상 있어야만
+					// 에러가 나지 않는다.
+					let invert = domains[k].attrs.length >= 3 && Math.random() > 0.5;
+					new_quest = Quest.generate_selection_quest(domains[k], 4, 1, invert);
+				}
+				else if(type_ptr == 3) {
+					new_quest = Quest.generate_selection2_quest(domains[k], 4);
+				}
+			}
+		}
+
 		quests.push(new_quest);
 	}
 
