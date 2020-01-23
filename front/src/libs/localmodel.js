@@ -46,10 +46,12 @@ class LocalModel {
 			[{name: '주제명', id: '주제id'}]
 	*/
 	getSubjectsList(callback) {
-		if (this.devmode && callback)
-			callback([{'name': '국밥', id: 1}]);
-
-		if (!this.devmode)
+		if (this.devmode)
+		{
+			if (callback)
+				window.setTimeout(() => { callback([{'name': '국밥', id: 1}]); }, 0);
+		}
+		else
 		{
 			// 요청 !
 			axios({
@@ -134,7 +136,7 @@ class LocalModel {
 			// 이거 나중에 Promise로 안바꾸면 재앙이
 			// 벌어질 것 같은 구조인데\
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return;
 		}
 
@@ -320,7 +322,7 @@ class LocalModel {
 			this.wp = newInfo;
 
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return ;
 		}
 
@@ -385,7 +387,7 @@ class LocalModel {
 			this.wp.id = `${(new Date()).getTime()}`;
 
 			if (callback)
-				callback(this.wp);
+				window.setTimeout(() => { callback(this.wp); }, 0);
 			return ;
 		}
 		
@@ -458,7 +460,7 @@ class LocalModel {
 			let attr = this.__appendAttr(this.wp, prefix, content, postfix, aid);
 
 			if (callback)
-				callback(attr);
+				window.setTimeout(() => { callback(attr); }, 0);
 			return;
 		}
 
