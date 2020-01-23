@@ -52,7 +52,12 @@ Traveler.selectNegativeInfos = function(material) {
 		// collect except visited node
 		root.childs.forEach(child => {
 			if (!comm.visited[child.jsid])
-				comm.out.push(child);
+			{
+				//comm.out.push(child);
+				Traveler.forEachPre(child, info => {
+					comm.out.push(info);
+				});
+			}
 		});
 
 		// going up
