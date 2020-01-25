@@ -1,58 +1,33 @@
 import React from 'react';
-import styles from './Gnb.module.scss';
-import Icon from '@mdi/react'; // https://materialdesignicons.com/
-import { mdiRestore, mdiChevronRight, mdiHome } from '@mdi/js';
+import styled from 'styled-components';
+import { useMyLocalModel } from '../contexts/MyLocalModel';
 
-interface Pathprops {
-  path: string[];
-}
+// vscode-styled-components 모듈 설치로 문자열화 방지.
+const Button = styled.button`
+  border-radius: 50px;
+  padding: 5px;
+  min-width: 120px;
+  color: white;
+  font-weight: 600;
+  -webkit-appearance: none;
+  cursor: pointer;
+  &:active,
+  &:focus {
+    outline: none;
+  }
+  background-color: ${(props: { danger?: boolean }) =>
+    props.danger ? 'red' : 'purple'};
+`;
 
-function Gnb({ path }: Pathprops) {
+function Gnb() {
+  const MyLocalModel = useMyLocalModel();
   return (
-    <div className={styles['gnb--wrapper']}>
-      <div className={styles['gnb--path']}>
-        {path.map((x, i) => {
-          return (
-            <React.Fragment key={'gnb-'.concat(i.toString())}>
-              <Icon
-                className={styles['gnb--arrow']}
-                path={mdiChevronRight}
-                // size prop 제거 (scss에서 사용)
-                title="arrow"
-                rotate={0}
-                color="white"
-              />
-              <div className={styles['gnb--pathname']}>{x}</div>
-            </React.Fragment>
-          );
-        })}
-      </div>
-      <div className={styles['gnb--right']}>
-        <div className={styles['gnb--icon-button']}>
-          <Icon
-            path={mdiRestore}
-            title="돌아가기"
-            size={1}
-            rotate={0}
-            color="white"
-          />
-        </div>
-        <div className={styles['gnb--icon-button']}>
-          <Icon
-            path={mdiHome}
-            title="홈으로"
-            size={1}
-            rotate={0}
-            color="white"
-          />
-        </div>
-      </div>
+    <div>
+      {MyLocalModel.test}
+      <Button>Hello</Button>
+      <Button danger>Warn</Button>
     </div>
   );
 }
-
-Gnb.defaultProps = {
-  path: ['내 주제'],
-};
 
 export default Gnb;

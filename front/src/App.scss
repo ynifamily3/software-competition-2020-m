@@ -1,0 +1,12 @@
+// normalize.css 패키지의 normalize.css 파일을 임포트함.
+@import '~normalize.css/normalize';
+@import url('https://cdn.jsdelivr.net/gh/moonspam/NanumBarunGothic@latest/nanumbarungothicsubset.css');
+
+.App {
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+  font-family: 'NanumBarunGothic', sans-serif;
+  flex-direction: column;
+  min-height: 100vh;
+}
