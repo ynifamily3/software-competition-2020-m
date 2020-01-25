@@ -19,14 +19,24 @@ const Button = styled.button`
     props.danger ? 'red' : 'purple'};
 `;
 
+const GnbWrapper = styled.div`
+  width: 100%;
+  height: 75px;
+  background-color: rgb(190, 0, 4);
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  color: white;
+`;
+
 function Gnb() {
   const MyLocalModel = useMyLocalModel();
   return (
-    <div>
-      {MyLocalModel.test}
-      <Button>Hello</Button>
-      <Button danger>Warn</Button>
-    </div>
+    <GnbWrapper>
+      {MyLocalModel.currentPath.reduce((prev, curr) => {
+        return prev.concat(' > ').concat(curr);
+      }, '> 내 주제 ')}
+    </GnbWrapper>
   );
 }
 

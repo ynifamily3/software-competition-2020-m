@@ -1,24 +1,25 @@
 import React, { createContext, Dispatch, useReducer, useContext } from 'react';
-
+import LocalModelCN from '../libs/localmodel';
 export interface MyLocalModel {
-  test: string;
-  counter: number;
+  LocalModel: any;
+  currentPath: string[];
+  subjects: { name: string; id: number }[];
 }
 
 const LocalModelContext = createContext<MyLocalModel | null>(null);
 
 type Action =
   | {
-      type: 'CREATE';
-      text: string;
+      type: 'INIT';
+      LocalModel: any;
     }
   | {
-      type: 'TOGGLE';
-      id: number;
+      type: 'CHANGE_PATH';
+      path: string[];
     }
   | {
-      type: 'REMOVE';
-      id: number;
+      type: 'CHANGE_SUBJECTS';
+      subjects: { name: string; id: number }[];
     };
 
 type LocalModelDispatch = Dispatch<Action>;
@@ -29,25 +30,37 @@ const LocalModelDispatchContext = createContext<LocalModelDispatch | null>(
 
 function LocalModelReducer(state: MyLocalModel, action: Action): MyLocalModel {
   switch (action.type) {
-    case 'CREATE':
-      return {
-        test: 'good create',
-        counter: state.counter + 1,
-      };
-    case 'TOGGLE':
+    case 'INIT':
       return {
         ...state,
-        test: 'good toggle',
+        LocalModel: action.LocalModel,
       };
-    case 'REMOVE':
+    case 'CHANGE_PATH':
       return {
-        test: 'good remove',
-        counter: state.counter - 1,
+        ...state,
+        currentPath: action.path,
+      };
+    case 'CHANGE_SUBJECTS':
+      return {
+        ...state,
+        subjects: action.subjects,
       };
     default:
       throw new Error('Unhandled action');
   }
 }
+
+const is_remote: boolean = false;
+const LocalModel = new LocalModelCN(!is_remote);
+
+////
+declare global {
+  interface Window {
+    LocalModel: any;
+  }
+}
+window.LocalModel = LocalModel; // 디버깅을 위해 window에 LocalModel 주입
+////
 
 export function MyLocalModelContextProvider({
   children,
@@ -55,8 +68,9 @@ export function MyLocalModelContextProvider({
   children: React.ReactNode;
 }) {
   const [localModel, dispatch] = useReducer(LocalModelReducer, {
-    test: 'hello!',
-    counter: 0,
+    LocalModel: LocalModel,
+    currentPath: [],
+    subjects: [],
   });
 
   return (
