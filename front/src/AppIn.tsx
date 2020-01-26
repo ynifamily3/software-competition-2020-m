@@ -24,7 +24,7 @@ function AppIn() {
       path: LocalModel.getCurrentPath(),
     });
     LocalModel.getSubjectsList(getSubjectsListCallBack);
-  }, []);
+  }, [dispatch]);
   return (
     <div className="App">
       <Gnb />

@@ -1,9 +1,29 @@
 import React, { createContext, Dispatch, useReducer, useContext } from 'react';
 import LocalModelCN from '../libs/localmodel';
+
+export interface Attr {
+  pinfo: Info;
+  prefix: string;
+  content: string;
+  postfix: string;
+  id: string | number;
+}
+
+export interface Info {
+  names: string[];
+  attrs: Attr[];
+  comment: string;
+  parent: null | Info;
+  childs: Info[];
+  id: string | number;
+  jsid: string | number;
+}
+
 export interface MyLocalModel {
   LocalModel: any;
   currentPath: string[];
   subjects: { name: string; id: number }[];
+  info: Info | null; // 진입한 current info
 }
 
 const LocalModelContext = createContext<MyLocalModel | null>(null);
@@ -20,6 +40,10 @@ type Action =
   | {
       type: 'CHANGE_SUBJECTS';
       subjects: { name: string; id: number }[];
+    }
+  | {
+      type: 'CHANGE_INFO';
+      info: any | Info; // any는 고육지책. 좀 더 조일 필요 있음.
     };
 
 type LocalModelDispatch = Dispatch<Action>;
@@ -44,6 +68,11 @@ function LocalModelReducer(state: MyLocalModel, action: Action): MyLocalModel {
       return {
         ...state,
         subjects: action.subjects,
+      };
+    case 'CHANGE_INFO':
+      return {
+        ...state,
+        info: action.info,
       };
     default:
       throw new Error('Unhandled action');
@@ -71,6 +100,7 @@ export function MyLocalModelContextProvider({
     LocalModel: LocalModel,
     currentPath: [],
     subjects: [],
+    info: null,
   });
 
   return (

@@ -1,23 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { useMyLocalModel } from '../contexts/MyLocalModel';
+import {
+  useMyLocalModel,
+  useMyLocalModelDispatch,
+} from '../contexts/MyLocalModel';
 
 // vscode-styled-components 모듈 설치로 문자열화 방지.
-const Button = styled.button`
-  border-radius: 50px;
-  padding: 5px;
-  min-width: 120px;
-  color: white;
-  font-weight: 600;
-  -webkit-appearance: none;
-  cursor: pointer;
-  &:active,
-  &:focus {
-    outline: none;
-  }
-  background-color: ${(props: { danger?: boolean }) =>
-    props.danger ? 'red' : 'purple'};
-`;
 
 const GnbWrapper = styled.div`
   width: 100%;
@@ -27,15 +15,34 @@ const GnbWrapper = styled.div`
   align-items: center;
   padding: 8px;
   color: white;
+  box-sizing: border-box;
+  & > div:first-child {
+    flex: 1;
+  }
 `;
 
 function Gnb() {
   const MyLocalModel = useMyLocalModel();
+  const dispatch = useMyLocalModelDispatch();
+  const handleExitToMainPageButton = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      dispatch({ type: 'CHANGE_PATH', path: [] });
+      // 나중에 Infos도 바꿔랑.
+    },
+    [dispatch],
+  );
   return (
     <GnbWrapper>
-      {MyLocalModel.currentPath.reduce((prev, curr) => {
-        return prev.concat(' > ').concat(curr);
-      }, '> 내 주제 ')}
+      <div>
+        {MyLocalModel.currentPath.reduce((prev, curr) => {
+          return prev.concat(' > ').concat(curr);
+        }, '> 내 주제 ')}
+      </div>
+      <div>
+        {MyLocalModel.currentPath.length !== 0 && (
+          <button onClick={handleExitToMainPageButton}>홈으로</button>
+        )}
+      </div>
     </GnbWrapper>
   );
 }
