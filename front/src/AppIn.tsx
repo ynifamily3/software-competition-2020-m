@@ -11,20 +11,20 @@ function AppIn() {
   const { LocalModel } = useMyLocalModel();
   const dispatch = useMyLocalModelDispatch();
   // 앱이 로드되면 다음 액션들을 차례로 디스패치함.
-  const getSubjectsListCallBack = (recv: any) => {
-    console.log(recv);
-    dispatch({
-      type: 'CHANGE_SUBJECTS',
-      subjects: recv,
-    });
-  };
   useEffect(() => {
-    dispatch({
-      type: 'CHANGE_PATH',
-      path: LocalModel.getCurrentPath(),
-    });
+    if (LocalModel.wp !== null) return; // 최상단이 아니면 아래의 액션들은 실행할 필요가 없습니다.
+    console.log('메인으로 옴. 주제 리스트를 뽑아옵니다.');
+    // 이 부분은 한번 호출되어서
+    const getSubjectsListCallBack = (recv: any) => {
+      // console.info('주제 리스트!');
+      console.log(recv);
+      dispatch({
+        type: 'CHANGE_SUBJECTS',
+        subjects: recv,
+      });
+    };
     LocalModel.getSubjectsList(getSubjectsListCallBack);
-  }, [dispatch]);
+  }, [LocalModel, dispatch, LocalModel.wp]);
   return (
     <div className="App">
       <Gnb />

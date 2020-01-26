@@ -26,10 +26,23 @@ function Gnb() {
   const dispatch = useMyLocalModelDispatch();
   const handleExitToMainPageButton = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      if (!window.confirm('[beta] 홈으로 이동하면 모든 내용을 잃습니다.'))
+        return;
+      MyLocalModel.LocalModel.exitToMainPage();
       dispatch({ type: 'CHANGE_PATH', path: [] });
-      // 나중에 Infos도 바꿔랑.
     },
-    [dispatch],
+    [dispatch, MyLocalModel],
+  );
+  const handleGoToUpperPageButton = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      var info = MyLocalModel.LocalModel.moveToParent();
+      dispatch({
+        type: 'CHANGE_PATH',
+        path: MyLocalModel.LocalModel.getCurrentPath(),
+      });
+      dispatch({ type: 'CHANGE_INFO', info });
+    },
+    [dispatch, MyLocalModel],
   );
   return (
     <GnbWrapper>
@@ -37,6 +50,11 @@ function Gnb() {
         {MyLocalModel.currentPath.reduce((prev, curr) => {
           return prev.concat(' > ').concat(curr);
         }, '> 내 주제 ')}
+      </div>
+      <div>
+        {MyLocalModel.currentPath.length >= 2 && (
+          <button onClick={handleGoToUpperPageButton}>상위 Info로</button>
+        )}
       </div>
       <div>
         {MyLocalModel.currentPath.length !== 0 && (

@@ -7,6 +7,8 @@ import {
   Info as InfoType,
 } from '../contexts/MyLocalModel';
 
+import AttrModal from './AttrModal';
+
 // vscode-styled-components 모듈 설치로 문자열화 방지.
 const MainWrapper = styled.div`
   width: 100%;
@@ -54,7 +56,8 @@ const Subject = styled.li`
   width: 33%;
   height: 150px;
   box-sizing: border-box;
-  background-color: rgb(237, 240, 241);
+  background-color: ${(props: { add?: boolean }) =>
+    props.add ? 'wheat' : 'rgb(237, 240, 241)'};
   min-width: 120px;
 `;
 
@@ -99,11 +102,82 @@ function Main() {
     },
     [dispatch, MyLocalModel],
   );
+  const handleIntoInfo = useCallback(
+    (idx: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      MyLocalModel.LocalModel.moveToChild(idx); // 하위 Info으로 이동.
+      dispatch({
+        type: 'CHANGE_PATH',
+        path: MyLocalModel.LocalModel.getCurrentPath(),
+      });
+      dispatch({
+        type: 'CHANGE_INFO',
+        info: MyLocalModel.LocalModel.getCurrentInfo(),
+      });
+    },
+    [dispatch, MyLocalModel],
+  );
+
+  const handleCreateAndIntoSubject = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      if (!window.confirm('홈으로 돌아오면 모든 내용을 잃습니다.')) return;
+      const createdHandler = (info: InfoType) => {
+        dispatch({
+          type: 'CHANGE_PATH',
+          path: MyLocalModel.LocalModel.getCurrentPath(),
+        });
+        dispatch({
+          type: 'CHANGE_INFO',
+          info: MyLocalModel.LocalModel.getCurrentInfo(),
+        });
+        // 제대로 안돔?
+      };
+      let input_subject: string | undefined | null = prompt('과목 이름은?');
+      if (
+        typeof input_subject === 'string' &&
+        input_subject.trim().length !== 0
+      ) {
+        MyLocalModel.LocalModel.createSubject(
+          input_subject.trim(),
+          createdHandler,
+        );
+      } else {
+        alert('유효하지 않는 과목 명입니다.');
+      }
+    },
+    [dispatch, MyLocalModel],
+  );
+
+  const handleAddInfo = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      const createdHandler = (info: InfoType) => {
+        dispatch({
+          type: 'CHANGE_PATH',
+          path: MyLocalModel.LocalModel.getCurrentPath(),
+        });
+        dispatch({
+          type: 'CHANGE_INFO',
+          info: MyLocalModel.LocalModel.getCurrentInfo(),
+        });
+      };
+      let input_info: string | undefined | null = prompt('info 이름은?');
+      if (typeof input_info === 'string' && input_info.trim().length !== 0) {
+        MyLocalModel.LocalModel.createInfo(input_info.trim(), createdHandler);
+      } else {
+        alert('유효하지 않는 Info 명입니다.');
+      }
+    },
+    [dispatch, MyLocalModel],
+  );
   return (
     <MainWrapper>
       <CenterWrapper>
         {MyLocalModel.currentPath.length === 0 ? (
           <Subjects>
+            <Subject add>
+              <button onClick={handleCreateAndIntoSubject}>
+                [beta] 과목 추가하기
+              </button>
+            </Subject>
             {MyLocalModel.subjects.map((x, i) => {
               return (
                 <Subject key={'subjects-' + x.id}>
@@ -117,6 +191,9 @@ function Main() {
           <InfoWrapper>
             <Comment>코멘트 : {MyLocalModel.info?.comment}</Comment>
             <Attrs>
+              <Attr>
+                <AttrModal />
+              </Attr>
               {MyLocalModel.info?.attrs.map((x: AttrType, i: number) => {
                 return (
                   <Attr key={'Attr-' + i}>
@@ -131,11 +208,16 @@ function Main() {
             </Attrs>
             <hr />
             <InfoList>
+              <Info>
+                <button onClick={handleAddInfo}>Info 추가</button>
+              </Info>
               {MyLocalModel.info?.childs.map((x: InfoType, i: number) => {
                 return (
                   <Info key={'Info-' + i}>
                     {x.names.join(' | ')}
-                    <Button danger>{'하위인포 이동'}</Button>
+                    <Button danger onClick={handleIntoInfo(i)}>
+                      {'하위인포 이동'}
+                    </Button>
                   </Info>
                 );
               })}
