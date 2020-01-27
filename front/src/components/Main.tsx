@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import {
   useMyLocalModel,
@@ -64,25 +64,42 @@ const Subject = styled.li`
 const InfoWrapper = styled.div`
   width: 100%;
 `;
-const Comment = styled.div``;
+// const Comment = styled.div``;
 const Attrs = styled.div``;
 const Attr = styled.div``;
 const InfoList = Subjects; // 동률 스타일
 const Info = Subject; // 동률 스타일
 
-// const timesRender = (times: number, Node: any): any => {
-//   const test = [];
-//   for (let i = 0; i < times; i++) test.push(Node);
-//   return (
-//     <React.Fragment>
-//       {test.map((x) => {
-//         return Node;
-//       })}
-//     </React.Fragment>
-//   );
-// };
+const CreateProblemWrapper = styled.div`
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  height: 75px;
+  position: fixed;
+  background-color: wheat;
+  bottom: -15px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+`;
+const CreateProblemButton = styled.button`
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: center;
+  box-sizing: border-box;
+  font-size: 1.5em;
+  font-weight: bold;
+  background-color: rgb(190, 0, 4);
+  color: white;
+  &:disabled {
+    font-weight: normal;
+    background-color: rgba(190, 0, 4, 0.5);
+  }
+`;
 
 function Main() {
+  const [canSolveProblem, setCanSolveProblem] = useState(false);
   const dispatch = useMyLocalModelDispatch();
   const MyLocalModel = useMyLocalModel();
   const handleIntoSubject = useCallback(
@@ -97,6 +114,7 @@ function Main() {
           type: 'CHANGE_INFO',
           info: recvInfo,
         });
+        setCanSolveProblem(recvInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
       MyLocalModel.LocalModel.moveToSubject(id, moveToSubjectCallBack);
     },
@@ -105,31 +123,33 @@ function Main() {
   const handleIntoInfo = useCallback(
     (idx: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       MyLocalModel.LocalModel.moveToChild(idx); // 하위 Info으로 이동.
+      const savedInfo = MyLocalModel.LocalModel.getCurrentInfo();
       dispatch({
         type: 'CHANGE_PATH',
         path: MyLocalModel.LocalModel.getCurrentPath(),
       });
       dispatch({
         type: 'CHANGE_INFO',
-        info: MyLocalModel.LocalModel.getCurrentInfo(),
+        info: savedInfo,
       });
+      setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
     },
     [dispatch, MyLocalModel],
   );
 
   const handleCreateAndIntoSubject = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      if (!window.confirm('홈으로 돌아오면 모든 내용을 잃습니다.')) return;
       const createdHandler = (info: InfoType) => {
+        const savedInfo = MyLocalModel.LocalModel.getCurrentInfo();
         dispatch({
           type: 'CHANGE_PATH',
           path: MyLocalModel.LocalModel.getCurrentPath(),
         });
         dispatch({
           type: 'CHANGE_INFO',
-          info: MyLocalModel.LocalModel.getCurrentInfo(),
+          info: savedInfo,
         });
-        // 제대로 안돔?
+        setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
       let input_subject: string | undefined | null = prompt('과목 이름은?');
       if (
@@ -141,7 +161,7 @@ function Main() {
           createdHandler,
         );
       } else {
-        alert('유효하지 않는 과목 명입니다.');
+        alert('유효하지 않는 과목 이름입니다.');
       }
     },
     [dispatch, MyLocalModel],
@@ -150,20 +170,22 @@ function Main() {
   const handleAddInfo = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       const createdHandler = (info: InfoType) => {
+        const savedInfo = MyLocalModel.LocalModel.getCurrentInfo();
         dispatch({
           type: 'CHANGE_PATH',
           path: MyLocalModel.LocalModel.getCurrentPath(),
         });
         dispatch({
           type: 'CHANGE_INFO',
-          info: MyLocalModel.LocalModel.getCurrentInfo(),
+          info: savedInfo,
         });
+        setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
-      let input_info: string | undefined | null = prompt('info 이름은?');
+      let input_info: string | undefined | null = prompt('정보 이름은?');
       if (typeof input_info === 'string' && input_info.trim().length !== 0) {
         MyLocalModel.LocalModel.createInfo(input_info.trim(), createdHandler);
       } else {
-        alert('유효하지 않는 Info 명입니다.');
+        alert('유효하지 않는 정보 이름입니다.');
       }
     },
     [dispatch, MyLocalModel],
@@ -174,22 +196,20 @@ function Main() {
         {MyLocalModel.currentPath.length === 0 ? (
           <Subjects>
             <Subject add>
-              <button onClick={handleCreateAndIntoSubject}>
-                [beta] 과목 추가하기
-              </button>
+              <button onClick={handleCreateAndIntoSubject}>과목 추가</button>
             </Subject>
             {MyLocalModel.subjects.map((x, i) => {
               return (
                 <Subject key={'subjects-' + x.id}>
                   <div>{x.name}</div>
-                  <Button onClick={handleIntoSubject(x.id)}>{'이동'}</Button>
+                  <Button onClick={handleIntoSubject(x.id)}>이동</Button>
                 </Subject>
               );
             })}
           </Subjects>
         ) : (
           <InfoWrapper>
-            <Comment>코멘트 : {MyLocalModel.info?.comment}</Comment>
+            {/* <Comment>코멘트 : {MyLocalModel.info?.comment}</Comment> */}
             <Attrs>
               <Attr>
                 {MyLocalModel.info?.names && (
@@ -197,33 +217,30 @@ function Main() {
                 )}
               </Attr>
               {MyLocalModel.info?.attrs.map((x: AttrType, i: number) => {
-                return (
-                  <Attr key={'Attr-' + i}>
-                    {MyLocalModel.info?.names.join(' | ')}
-                    {/* info? 와 같이 하면 possible null 발생 안하는듯? 아마 렌더링할지말지 결정 */}
-                    {x.prefix + ' '}
-                    {x.content}
-                    {x.postfix}
-                  </Attr>
-                );
+                return <Attr key={'Attr-' + i}>{x.getFullSentence()}</Attr>;
               })}
             </Attrs>
             <hr />
             <InfoList>
               <Info>
-                <button onClick={handleAddInfo}>Info 추가</button>
+                <button onClick={handleAddInfo}>정보 추가</button>
               </Info>
               {MyLocalModel.info?.childs.map((x: InfoType, i: number) => {
                 return (
                   <Info key={'Info-' + i}>
                     {x.names.join(' | ')}
                     <Button danger onClick={handleIntoInfo(i)}>
-                      {'하위인포 이동'}
+                      {'하위 정보 이동'}
                     </Button>
                   </Info>
                 );
               })}
             </InfoList>
+            <CreateProblemWrapper>
+              <CreateProblemButton disabled={!canSolveProblem}>
+                문제 풀기
+              </CreateProblemButton>
+            </CreateProblemWrapper>
           </InfoWrapper>
         )}
       </CenterWrapper>

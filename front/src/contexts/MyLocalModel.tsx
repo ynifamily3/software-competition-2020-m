@@ -7,6 +7,7 @@ export interface Attr {
   content: string;
   postfix: string;
   id: string | number;
+  getFullSentence: Function;
 }
 
 export interface Info {

@@ -242,6 +242,7 @@ function AttrModal({ name }: { name: string[] }) {
         if (attr !== null) {
           // attr이 실질적으론 안쓰이는거 같은데.
           dispatch({ type: 'CHANGE_INFO', info: LocalModel.getCurrentInfo() });
+          // 여기에 인포 수 변화에 수반되는 문제풀기버튼 활성화를 추가해야 한다. 근데 하위 컴포넌트임.
           closeModal();
         } else {
           alert('server error');
@@ -269,7 +270,7 @@ function AttrModal({ name }: { name: string[] }) {
   );
   return (
     <React.Fragment>
-      <button onClick={openModal}>Attr 추가</button>
+      <button onClick={openModal}>속성 추가</button>
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
