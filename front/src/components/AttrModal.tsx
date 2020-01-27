@@ -2,6 +2,12 @@ import React, { useState, useCallback, useRef } from 'react';
 import Modal from 'react-modal';
 // import Modal from './Modal';
 import styled from 'styled-components';
+import {
+  useMyLocalModel,
+  useMyLocalModelDispatch,
+  Attr as AttrType,
+  Info as InfoType,
+} from '../contexts/MyLocalModel';
 
 const customStyles = {
   overlay: {
@@ -38,17 +44,102 @@ const ModalContents = styled.div`
 const SelBox = styled.ul`
   list-style: none;
   padding: 0;
+  display: flex;
 `;
-const SelElem = styled.li``;
+const SelElem = styled.li`
+  display: inline-block;
+  flex: 1;
+  & > button {
+    border: none;
+    text-align: center;
+    width: 100%;
+    height: 40px;
+    box-sizing: border-box;
+    font-size: 0.7em;
+  }
+`;
 
 const ImportantButtonWrapper = styled.div`
-  position: absolute;
-  bottom: 0px;
-  width: 100%;
+  display: flex;
+  height: 55px;
+  & > button {
+    border: none;
+    text-align: center;
+  }
+  & > button:nth-child(1) {
+    flex: 1;
+    color: black;
+  }
+  & > button:nth-child(2) {
+    flex: 1;
+    font-weight: bold;
+    background-color: rgb(24, 109, 238);
+    color: white;
+  }
+  & > button:disabled {
+    font-weight: normal;
+    background-color: rgba(24, 109, 238, 0.5);
+  }
 `;
 
+const Preview = styled.div`
+  font-size: 2em;
+  font-weight: bold;
+  word-break: break-all;
+`;
+
+const InputBox = styled.div`
+  & > input[type='text'] {
+    width: 100%;
+  }
+`;
+
+const SelButton = styled.button`
+  background-color: ${(props: { selected?: boolean }) =>
+    props.selected ? 'rgb(187,188,244)' : '#eeeeee'};
+`;
+
+// [출처] [자바스크립트] 한글 받침 구별 함수
+// https://blog.naver.com/azure0777/221414175631
+function checkBatchimEnding(word: string) {
+  if (word.length === 0) return false;
+  var lastLetter = word[word.length - 1];
+  var uni = lastLetter.charCodeAt(0);
+
+  if (uni < 44032 || uni > 55203) return false;
+
+  return (uni - 44032) % 28 !== 0;
+}
+
+function makeSentence(
+  name: string,
+  prefixes: string[],
+  content: string,
+  postfixes: string[],
+): string {
+  var string = name;
+  if (checkBatchimEnding(name)) {
+    string += prefixes[0];
+  } else {
+    string += prefixes[1];
+  }
+  string += ' ';
+  if (content.trim().length === 0) {
+    string += '???';
+  } else {
+    string += content;
+  }
+  if (checkBatchimEnding(content)) {
+    string += postfixes[0];
+  } else {
+    string += postfixes[1];
+  }
+  return string + '.';
+}
+
 function AttrModal({ name }: { name: string[] }) {
-  // var subtitle: any;
+  const dispatch = useMyLocalModelDispatch(); // 마이모델컨텍스트
+  const { LocalModel } = useMyLocalModel();
   const contentInputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const [prefix, setPrefix] = useState(0);
@@ -79,6 +170,9 @@ function AttrModal({ name }: { name: string[] }) {
 
   function afterOpenModal() {
     // 열리고 난 뒤 수행되는 액션을 정의
+    setPreview(
+      makeSentence(name[0], prefixList[prefix], content, postfixList[postfix]),
+    );
     contentInputRef.current.focus();
   }
 
@@ -87,17 +181,6 @@ function AttrModal({ name }: { name: string[] }) {
     // (closeModal)에서 많은 상태변화를 일으켜야 렌더링 횟수가 줄어드므로 쓸 일 없을듯?
   }
 
-  // [출처] [자바스크립트] 한글 받침 구별 함수
-  // https://blog.naver.com/azure0777/221414175631
-  function checkBatchimEnding(word: string) {
-    if (word.length === 0) return false;
-    var lastLetter = word[word.length - 1];
-    var uni = lastLetter.charCodeAt(0);
-
-    if (uni < 44032 || uni > 55203) return false;
-
-    return (uni - 44032) % 28 !== 0;
-  }
   const isBatchimName = checkBatchimEnding(name[0]);
   const prefixList = [
     ['은', '는'],
@@ -109,31 +192,80 @@ function AttrModal({ name }: { name: string[] }) {
     ['하다', '하다'],
     ['된다', '된다'],
     ['있다', '있다'],
-    ['(동사형)다', '(동사형)다'],
+    ['다', '다'], // 동사형
   ];
-  const handleMdoalBodyClick = useCallback((e) => {
-    contentInputRef.current.focus();
-  }, []);
+  const handleMdoalBodyClick = useCallback(
+    (e) => {
+      contentInputRef.current.focus();
+    },
+    [contentInputRef],
+  );
   const handlePrefixClick = useCallback(
     (idx: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       setPrefix(idx);
       // contentInputRef.current.focus(); => 이벤트 버블링 덕분에 필요 없다.
+      setPreview(
+        makeSentence(name[0], prefixList[idx], content, postfixList[postfix]),
+      );
     },
-    [],
+    [name, postfixList, prefixList, content, postfix],
   );
   const handlePostfixClick = useCallback(
     (idx: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       setPostfix(idx);
       // contentInputRef.current.focus(); => 이벤트 버블링 덕분에 필요 없다.
+      setPreview(
+        makeSentence(name[0], prefixList[prefix], content, postfixList[idx]),
+      );
     },
-    [],
+    [content, prefix, name, postfixList, prefixList],
   );
   const handleChangeContent = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setContent(e.target.value);
       setIsBatchimContent(checkBatchimEnding(e.target.value));
+      setPreview(
+        makeSentence(
+          name[0],
+          prefixList[prefix],
+          e.target.value,
+          postfixList[postfix],
+        ),
+      );
     },
-    [],
+    [prefix, postfix, name, postfixList, prefixList],
+  );
+
+  const commitAttrHandler = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      const createAttrCallBackHandler = (attr: AttrType) => {
+        if (attr !== null) {
+          // attr이 실질적으론 안쓰이는거 같은데.
+          dispatch({ type: 'CHANGE_INFO', info: LocalModel.getCurrentInfo() });
+          closeModal();
+        } else {
+          alert('server error');
+        }
+      };
+      const prefixDecider = checkBatchimEnding(name[0]) ? 0 : 1;
+      const postfixDecider = checkBatchimEnding(content) ? 0 : 1;
+      LocalModel.createAttr(
+        prefixList[prefix][prefixDecider],
+        content,
+        postfixList[postfix][postfixDecider],
+        createAttrCallBackHandler,
+      );
+    },
+    [
+      LocalModel,
+      content,
+      postfixList,
+      prefixList,
+      prefix,
+      postfix,
+      name,
+      dispatch,
+    ],
   );
   return (
     <React.Fragment>
@@ -149,22 +281,23 @@ function AttrModal({ name }: { name: string[] }) {
       >
         {/* <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Hello</h2> */}
         <ModalContents onClick={handleMdoalBodyClick}>
-          <div>{name[0]}</div>
-          <div>
-            <SelBox>
-              {prefixList.map((x, i) => {
-                return (
-                  <SelElem key={'prefix-' + i}>
-                    <button onClick={handlePrefixClick(i)}>
-                      {isBatchimName ? x[0] : x[1]}
-                    </button>
-                    {prefix === i && 'activated'}
-                  </SelElem>
-                );
-              })}
-            </SelBox>
-          </div>
-          <div>
+          <Preview>{preview}</Preview>
+          <SelBox>
+            {prefixList.map((x, i) => {
+              return (
+                <SelElem key={'prefix-' + i}>
+                  <SelButton
+                    onClick={handlePrefixClick(i)}
+                    selected={prefix === i}
+                  >
+                    {isBatchimName ? x[0] : x[1]}
+                    {/* {prefix === i && ' ✔'} */}
+                  </SelButton>
+                </SelElem>
+              );
+            })}
+          </SelBox>
+          <InputBox>
             <input
               type="text"
               placeholder="콘텐츠 입력"
@@ -172,27 +305,40 @@ function AttrModal({ name }: { name: string[] }) {
               value={content}
               onChange={handleChangeContent}
             />
-          </div>
-          <div>
-            <SelBox>
-              {postfixList.map((x, i) => {
-                return (
-                  <SelElem key={'postfix-' + i}>
-                    <button onClick={handlePostfixClick(i)}>
-                      {isBatchimContent ? x[0] : x[1]}
-                    </button>
-                    {postfix === i && 'activated'}
-                  </SelElem>
-                );
-              })}
-            </SelBox>
-          </div>
-          <div>
-            <div>과거형</div>
-            <div>부정형</div>
-          </div>
+          </InputBox>
+          <SelBox>
+            {postfixList.map((x, i) => {
+              return (
+                <SelElem key={'postfix-' + i}>
+                  <SelButton
+                    onClick={handlePostfixClick(i)}
+                    selected={postfix === i}
+                  >
+                    {isBatchimContent ? x[0] : x[1]}
+                    {i === 0 && '(명사형)'}
+                    {i === 4 && '(동사형)'}
+                    {/* {postfix === i && ' ✔'} */}
+                  </SelButton>
+                </SelElem>
+              );
+            })}
+          </SelBox>
+          {/* <SelBox>
+            <SelElem>
+              <SelButton>과거형</SelButton>
+            </SelElem>
+            <SelElem>
+              <SelButton>부정형</SelButton>
+            </SelElem>
+          </SelBox> */}
           <ImportantButtonWrapper>
-            <button onClick={closeModal}>중요 액션</button>
+            <button onClick={closeModal}>닫기</button>
+            <button
+              onClick={commitAttrHandler}
+              disabled={!content.trim().length}
+            >
+              저장
+            </button>
           </ImportantButtonWrapper>
         </ModalContents>
       </Modal>
