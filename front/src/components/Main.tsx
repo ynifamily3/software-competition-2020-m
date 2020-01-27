@@ -192,7 +192,9 @@ function Main() {
             <Comment>코멘트 : {MyLocalModel.info?.comment}</Comment>
             <Attrs>
               <Attr>
-                <AttrModal />
+                {MyLocalModel.info?.names && (
+                  <AttrModal name={MyLocalModel.info.names} />
+                )}
               </Attr>
               {MyLocalModel.info?.attrs.map((x: AttrType, i: number) => {
                 return (

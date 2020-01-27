@@ -2,10 +2,14 @@
 @import '~normalize.css/normalize';
 @import url('https://cdn.jsdelivr.net/gh/moonspam/NanumBarunGothic@latest/nanumbarungothicsubset.css');
 
+body {
+  width: 100%;
+  font-family: 'NanumBarunGothic', sans-serif;
+  // touch-action: manipulation;
+}
 .App {
   display: flex;
   position: relative;
   box-sizing: border-box;
-  font-family: 'NanumBarunGothic', sans-serif;
   flex-direction: column;
 }

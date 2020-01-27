@@ -26,7 +26,7 @@ function AppIn() {
     LocalModel.getSubjectsList(getSubjectsListCallBack);
   }, [LocalModel, dispatch, LocalModel.wp]);
   return (
-    <div className="App">
+    <div className="App" onClick={(e) => e.preventDefault()}>
       <Gnb />
       <Main />
     </div>
