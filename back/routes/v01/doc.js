@@ -42,12 +42,19 @@ router.post('/modifyAttr',(req,res,next)=>{
 	return docManager.modifyAttr(res,req.body.prefix,req.body.content,req.body.postfix,req.body.aid);
 })
 
-router.delete('/deleteInfo',(req,res,next)=>{
-	
+router.post('/deleteInfo',(req,res,next)=>{
+	return docManager.deleteInfo(res,req.body.id,true)
+	/*
 	return res.json({
 		state:"Boolean",
 		msg:"String"
 	})
+	*/
 });
+
+router.post('/deleteAttr',(req,res,next)=>{
+
+	return docManager.deleteAttr(res,req.body.aid);
+})
 
 module.exports = router

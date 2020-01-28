@@ -181,7 +181,7 @@ exports.modifyInfo = (res,name,id)=>{
 							.then((info)=>{
 								return res.json({
 									state:true,
-									msg:'Succes'
+									msg:'Success'
 								})
 							})
 							.catch((err)=>{
@@ -218,3 +218,122 @@ exports.modifyAttr = (res,prefix,content,postfix,aid)=>{
 			})
 		})
 }
+
+exports.deleteInfo = (res,id,flag) => {
+	console.log("c-------------------")
+	Info.findOne({_id:id})
+		.then(async (info)=>{
+			if(info.parentId){
+				Info.findOneAndUpdate({_id:info.parentId},{$pull:{'childs':{$in:[id]}}})
+					.then(async(inf)=>{
+						console.log('dd')
+						for(c of info.childs){
+							console.log('conunt')
+							await this.deleteInfo(res,c,false)
+						}
+
+						console.log("de")
+	
+						for(a of info.attrs){
+							await Attr.deleteOne({_id:a})
+						}
+						console.log("da")
+						await Info.deleteOne({_id:id})
+							.then(()=>{
+								if(flag){
+									return res.json({
+										state:true,
+										msg:'Success'
+									})
+								} else {
+									return
+								}	
+							})
+						.catch((err)=>{
+							return res.json({
+								state:false,
+								msg:'Delete error'
+							})
+						})
+					})
+					.catch((err)=>{
+						if(flag) console.log("root")
+						return res.json({
+							state:false,
+							msg:'Parent Not Found'
+						})
+					})
+			} else {
+				for(c of info.childs){
+					await this.deleteInfo(res,c,false)
+				}
+
+				for(a of info.attrs){
+					await Attr.deleteOne({_id:a})
+				}
+				await Info.deleteOne({_id:id})
+					.then(()=>{
+						if(flag){
+							return res.json({
+								state:true,
+								msg:'Success'
+							})
+						} else {
+							return
+						}
+					})
+					.catch((err)=>{
+						return res.json({
+							state:false,
+							msg:'Delete error'
+						})
+					})
+					
+			}
+		})
+		.catch((err)=>{
+			return res.json({
+				state:false,
+				msg:'Info Not Found'
+			})
+		})
+}
+
+exports.deleteAttr = (res,aid) => {
+	Attr.findOne({_id:aid})
+		.then((attr)=>{
+			console.log(attr)
+			Info.findOneAndUpdate({_id:attr.parentId},{$pull:{'attrs':{$in:[aid]}}})
+				.then((info)=>{
+
+					Attr.deleteOne({_id:aid})
+						.then(async (attr)=>{
+
+							return res.json({
+								state:true,
+								msg:'Success'
+							})
+						})
+						.catch((err)=>{
+							return res.json({
+								state:false,
+								msg:'remove failed'
+							})
+						})
+				})
+				.catch((err)=>{
+					console.log(err)
+					return res.json({
+						stata:false,
+						msg:'Parent Not Found'
+					})
+				})
+		})
+		.catch((err)=>{
+			return res.json({
+				state:false,
+				msg:'Attr Not Found'
+			})
+		})
+}
+
