@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import {
   useMyLocalModel,
@@ -15,7 +15,6 @@ const MainWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* text-align: center; */
   box-sizing: border-box;
   position: relative;
 `;
@@ -38,7 +37,7 @@ const Button = styled.button`
     outline: none;
   }
   background-color: ${(props: { danger?: boolean }) =>
-    props.danger ? 'red' : 'purple'};
+    props.danger ? 'rgb(190,0,4)' : 'purple'};
 `;
 
 const Subjects = styled.ul`
@@ -65,8 +64,16 @@ const InfoWrapper = styled.div`
   width: 100%;
 `;
 // const Comment = styled.div``;
-const Attrs = styled.div``;
-const Attr = styled.div``;
+const Attrs = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+const Attr = styled.div`
+  &:before {
+    content: '(연필) ';
+  }
+  padding: 15px 0;
+`;
 const InfoList = Subjects; // 동률 스타일
 const Info = Subject; // 동률 스타일
 
@@ -99,7 +106,7 @@ const CreateProblemButton = styled.button`
 `;
 
 function Main() {
-  const [canSolveProblem, setCanSolveProblem] = useState(false);
+  // const [canSolveProblem, setCanSolveProblem] = useState(false);
   const dispatch = useMyLocalModelDispatch();
   const MyLocalModel = useMyLocalModel();
   const handleIntoSubject = useCallback(
@@ -114,7 +121,7 @@ function Main() {
           type: 'CHANGE_INFO',
           info: recvInfo,
         });
-        setCanSolveProblem(recvInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
+        // setCanSolveProblem(recvInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
       MyLocalModel.LocalModel.moveToSubject(id, moveToSubjectCallBack);
     },
@@ -132,7 +139,7 @@ function Main() {
         type: 'CHANGE_INFO',
         info: savedInfo,
       });
-      setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
+      // setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
     },
     [dispatch, MyLocalModel],
   );
@@ -149,7 +156,7 @@ function Main() {
           type: 'CHANGE_INFO',
           info: savedInfo,
         });
-        setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
+        // setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
       let input_subject: string | undefined | null = prompt('과목 이름은?');
       if (
@@ -179,7 +186,7 @@ function Main() {
           type: 'CHANGE_INFO',
           info: savedInfo,
         });
-        setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
+        // setCanSolveProblem(savedInfo.attrs.length > 0); // 문제풀이 가능여부 state를 바꾼다..
       };
       let input_info: string | undefined | null = prompt('정보 이름은?');
       if (typeof input_info === 'string' && input_info.trim().length !== 0) {
@@ -190,6 +197,14 @@ function Main() {
     },
     [dispatch, MyLocalModel],
   );
+
+  const handleCreateMockTest = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      console.log(MyLocalModel.LocalModel.createMocktest(20));
+    },
+    [MyLocalModel],
+  );
+
   return (
     <MainWrapper>
       <CenterWrapper>
@@ -237,7 +252,10 @@ function Main() {
               })}
             </InfoList>
             <CreateProblemWrapper>
-              <CreateProblemButton disabled={!canSolveProblem}>
+              <CreateProblemButton
+                disabled={MyLocalModel.info?.attrs.length === 0}
+                onClick={handleCreateMockTest}
+              >
                 문제 풀기
               </CreateProblemButton>
             </CreateProblemWrapper>

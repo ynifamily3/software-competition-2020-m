@@ -6,7 +6,7 @@ import {
   useMyLocalModel,
   useMyLocalModelDispatch,
   Attr as AttrType,
-  Info as InfoType,
+  // Info as InfoType,
 } from '../contexts/MyLocalModel';
 
 const customStyles = {
@@ -145,8 +145,8 @@ function AttrModal({ name }: { name: string[] }) {
   const [prefix, setPrefix] = useState(0);
   const [postfix, setPostfix] = useState(0);
   const [content, setContent] = useState('');
-  const [past, togglePast] = useState(false);
-  const [neg, toggleNeg] = useState(false);
+  // const [past, togglePast] = useState(false);
+  // const [neg, toggleNeg] = useState(false);
   const [preview, setPreview] = useState('');
   const [isBatchimContent, setIsBatchimContent] = useState(false);
   function openModal() {
@@ -160,8 +160,8 @@ function AttrModal({ name }: { name: string[] }) {
     setPrefix(0);
     setPostfix(0);
     setContent('');
-    togglePast(false);
-    toggleNeg(false);
+    // togglePast(false);
+    // toggleNeg(false);
     setPreview('');
     setIsBatchimContent(false);
     const body: HTMLElement = document.body;

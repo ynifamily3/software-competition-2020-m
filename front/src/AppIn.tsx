@@ -6,6 +6,7 @@ import {
 
 import Gnb from './components/Gnb';
 import Main from './components/Main';
+import MockTest from './components/MockTest';
 
 function AppIn() {
   const { LocalModel } = useMyLocalModel();
@@ -16,7 +17,6 @@ function AppIn() {
     console.log('메인으로 옴. 주제 리스트를 뽑아옵니다.');
     // 이 부분은 한번 호출되어서
     const getSubjectsListCallBack = (recv: any) => {
-      // console.info('주제 리스트!');
       console.log(recv);
       dispatch({
         type: 'CHANGE_SUBJECTS',
@@ -27,8 +27,9 @@ function AppIn() {
   }, [LocalModel, dispatch, LocalModel.wp]);
   return (
     <div className="App" onClick={(e) => e.preventDefault()}>
-      <Gnb />
-      <Main />
+      {/* <Gnb /> */}
+      {/* <Main /> */}
+      <MockTest />
     </div>
   );
 }
