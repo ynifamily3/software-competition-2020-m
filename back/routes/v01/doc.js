@@ -3,7 +3,9 @@ const docManager = require('./docManager')
 
 router.get('/getInfosList',(req,res,next)=>{
 
-	return res.json({state:'Boolean',msg:'string',names:['String'],ids:['MongoDBId']});
+	return docManager.getInfosList(res);
+
+	//return res.json({state:'Boolean',msg:'string',names:['String'],ids:['MongoDBId']});
 });
 
 router.post('/createInfo',(req,res,next)=>{
@@ -21,8 +23,18 @@ router.post('/createInfo',(req,res,next)=>{
 	//	});
 });
 
+
 router.post('/createAttr',(req,res,next)=>{
 	return docManager.makeAttr(res,req.body.prefix,req.body.content,req.body.postfix,req.body.parentId);
+})
+
+router.post('/readInfo',(req,res,next)=>{
+
+	docManager.readInfo(res,req.body.id,true)
+
+	console.log("test");
+
+	return res.json({test:"test"})
 })
 
 router.post('/modifyInfo',(req,res,next)=>{

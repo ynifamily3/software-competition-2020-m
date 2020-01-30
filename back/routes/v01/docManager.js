@@ -1,6 +1,54 @@
 const Attr = require('../../models/attr');
 const Info = require('../../models/info');
 
+exports.getInfosList = (res) => {
+	Info.find({parentId:null})
+		.then(async (infoList)=>{
+			console.log(infoList);
+
+			let names = [];
+			let ids = [];
+
+			for(info of infoList){
+				await names.push(info.name);
+				await ids.push(info.id);
+			}
+
+			return res.json({
+				state:true,
+				msg:"Success",
+				names:names,
+				ids:ids
+			})
+		})
+}
+
+makeReadInfo = (root,nodes,edges,rootCnt,edgeCnt)=>{
+	nodes.push(root);
+
+	for(c of root.childs){
+		edges.push([rootCnt,edgeCnt]);
+
+
+		edgeCnt++;
+	}
+
+	return edgeCnt;
+}
+
+exports.readInfo = async (res,id)=>{
+	let nodes = [];
+	let edges = [];
+	let edgeCnt = 1;
+
+	Info.findOne({_id:id}).populate('attrs')
+		.then(async (info)=>{
+			await makeReadInfo(info,nodes,edges,0,edgeCnt);
+		})
+	//console.log(ret)
+
+}
+
 exports.makeInfo = (res,infoName,parent) => {
 
 	if(parent==null||parent==undefined)
