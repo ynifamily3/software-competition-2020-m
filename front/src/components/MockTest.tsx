@@ -27,6 +27,8 @@ const MockTestWrapper = styled.div`
   background-color: white;
   padding-bottom: 66px;
   margin-bottom: 74px;
+  overflow: scroll;
+  height: 100%;
 `;
 
 const MockTestTitle = styled.div`
@@ -46,6 +48,7 @@ const MockTestExit = styled.div`
   text-align: center;
   background-color: wheat;
   position: fixed;
+  right: 0;
   width: 100%;
   max-width: 600px;
   height: 74px;
@@ -77,7 +80,13 @@ const MockTestExit = styled.div`
   }
 `;
 
-function MockTest({ Mocktest }: { Mocktest: Mocktest }) {
+function MockTest({
+  Mocktest,
+  closeHandler,
+}: {
+  Mocktest: Mocktest;
+  closeHandler: Function;
+}) {
   const [selection, setSelection] = useState<(string | null)[]>(
     new Array(Mocktest.quests.length).fill(null), // 문제 수만큼 null로 채워진 배열
   );
@@ -89,11 +98,18 @@ function MockTest({ Mocktest }: { Mocktest: Mocktest }) {
   //     setSelection(newArray);
   //   };
   // };
+
+  const closeClickHandler = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      closeHandler();
+    },
+    [],
+  );
   return (
     <MockTestWrapper>
       <MockTestExit>
         <button>채점</button>
-        <button>닫기</button>
+        <button onClick={closeClickHandler}>닫기</button>
       </MockTestExit>
       <MockTestTitle>
         <div>2020학년도 문제지</div>
@@ -136,7 +152,7 @@ MockTest.defaultProps = {
           '얼큰한 국물이 인상적이다.',
           '어쩌면 하나쯤은 있을수도있다.',
         ],
-        answers: ['실제로는 없는 브랜드이다.'],
+        answers: ['0'],
         materials: null,
       },
       {
@@ -150,7 +166,7 @@ MockTest.defaultProps = {
         type: 'selection',
         title: '인생을 왜 사나요?',
         choices: ['죽기 위해서', '살기 위해서', '먹기 위해서', '싸기 위해서'],
-        answers: ['죽기 위해서'],
+        answers: ['1'],
         materials: null,
       },
       {

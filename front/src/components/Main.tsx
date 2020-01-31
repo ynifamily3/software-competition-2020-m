@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import {
   useMyLocalModel,
@@ -8,6 +8,7 @@ import {
 } from '../contexts/MyLocalModel';
 
 import AttrModal from './AttrModal';
+import MockTestModal from './MockTestModal';
 
 // vscode-styled-components 모듈 설치로 문자열화 방지.
 const MainWrapper = styled.div`
@@ -106,9 +107,14 @@ const CreateProblemButton = styled.button`
 `;
 
 function Main() {
-  // const [canSolveProblem, setCanSolveProblem] = useState(false);
   const dispatch = useMyLocalModelDispatch();
   const MyLocalModel = useMyLocalModel();
+
+  /// Mocktest Modal Control state
+  const [isOpenMockTest, setIsOpenMockTest] = useState<boolean>(false);
+  const [mockTestData, setMockTestData] = useState<any>(null);
+  /// End-of Mocktest Modal Control state
+
   const handleIntoSubject = useCallback(
     (id: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       const moveToSubjectCallBack = (recvInfo: any) => {
@@ -200,7 +206,8 @@ function Main() {
 
   const handleCreateMockTest = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      console.log(MyLocalModel.LocalModel.createMocktest(20));
+      setMockTestData(MyLocalModel.LocalModel.createMocktest(5));
+      setIsOpenMockTest(true);
     },
     [MyLocalModel],
   );
@@ -258,6 +265,12 @@ function Main() {
               >
                 문제 풀기
               </CreateProblemButton>
+              <MockTestModal
+                modalIsOpen={isOpenMockTest && mockTestData !== null}
+                setMockTestData={setMockTestData}
+                setModalIsOpen={setIsOpenMockTest}
+                mockTestData={mockTestData}
+              />
             </CreateProblemWrapper>
           </InfoWrapper>
         )}

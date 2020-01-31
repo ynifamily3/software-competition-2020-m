@@ -77,7 +77,6 @@ function QuestComp({
   const { type, title, statement, choices, answers, materials } = quest;
   const onChange2 = useCallback(
     (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log(1);
       setValueAsync(value);
     },
     [selection],
@@ -85,7 +84,6 @@ function QuestComp({
   const onClick2 = useCallback(
     (value: string) => (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
       e.stopPropagation(); // 안에 있는 radio event의 Propagation 을 방지
-      console.log(2);
       setValueAsync(value);
     },
     [selection],
@@ -93,7 +91,6 @@ function QuestComp({
 
   const setValueAsync = (value: string) => {
     var newArr = selection.slice();
-    // console.log(newArr);
     newArr[order] = value;
     console.log(newArr);
     setSelectionFn(newArr);
@@ -117,15 +114,22 @@ function QuestComp({
           return (
             <Selection
               key={'select-id' + order + '-' + i}
-              selected={selection[order] === x}
+              selected={
+                type === 'binary'
+                  ? selection[order] === x
+                  : selection[order] === '' + i
+              }
             >
-              <label onClick={onClick2(x)}>
+              <label onClick={onClick2(type !== 'binary' ? '' + i : x)}>
                 <input
                   type="radio"
                   name={'select-' + order}
-                  onChange={onChange2(x)}
-                  checked={selection[order] === x}
-                  value={x} // 중요할듯
+                  onChange={onChange2(type !== 'binary' ? '' + i : x)}
+                  checked={
+                    type === 'binary'
+                      ? selection[order] === x
+                      : selection[order] === '' + i
+                  }
                 />
                 <span>
                   {type === 'binary' ? (x === 'T' ? '참' : '거짓') : x}

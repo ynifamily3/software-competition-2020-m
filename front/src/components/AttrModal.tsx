@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import Modal from 'react-modal';
-// import Modal from './Modal';
 import styled from 'styled-components';
+
 import {
   useMyLocalModel,
   useMyLocalModelDispatch,
@@ -272,6 +272,7 @@ function AttrModal({ name }: { name: string[] }) {
     <React.Fragment>
       <button onClick={openModal}>속성 추가</button>
       <Modal
+        closeTimeoutMS={200}
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         style={customStyles}
