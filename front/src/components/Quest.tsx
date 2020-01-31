@@ -38,8 +38,8 @@ const Selection = styled.div`
     padding-left: 0.7em;
   }
   & > label > input[type='radio'] {
-    position: absolute;
-    left: -9999px;
+    /* position: absolute; */
+    /* left: -9999px; */
   }
   display: flex;
 
@@ -67,41 +67,48 @@ function QuestComp({
   quest,
   order,
   setSelectionFn,
+  selection,
 }: {
   quest: QuestType;
   order: number;
   setSelectionFn: Function;
+  selection: (string | null)[];
 }) {
   const { type, title, statement, choices, answers, materials } = quest;
-  const [localValue, setLocalValue] = useState<string | null>(null);
   const onChange2 = useCallback(
     (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log('triggers', value);
-      setLocalValue(value);
-      setSelectionFn(value);
+      console.log(1);
+      setValueAsync(value);
     },
-    [setLocalValue, setSelectionFn],
+    [selection],
   );
   const onClick2 = useCallback(
     (value: string) => (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
-      console.log('triggers', value);
-      setLocalValue(value);
-      setSelectionFn(value);
+      e.stopPropagation(); // 안에 있는 radio event의 Propagation 을 방지
+      console.log(2);
+      setValueAsync(value);
     },
-    [setLocalValue, setSelectionFn],
+    [selection],
   );
 
-  const asdf = useCallback(
+  const setValueAsync = (value: string) => {
+    var newArr = selection.slice();
+    // console.log(newArr);
+    newArr[order] = value;
+    console.log(newArr);
+    setSelectionFn(newArr);
+  };
+
+  const inputChangeHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setLocalValue(e.target.value);
-      setSelectionFn(e.target.value);
+      setValueAsync(e.target.value);
     },
-    [setLocalValue, setSelectionFn], // dep가 중요
+    [selection], // dep가 중요
   );
   return (
     <QuestElem>
       <div>
-        {order + '. '}
+        {order + 1 + '. '}
         {title}
       </div>
       <Statement statement={statement}>{statement}</Statement>
@@ -110,14 +117,15 @@ function QuestComp({
           return (
             <Selection
               key={'select-id' + order + '-' + i}
-              selected={localValue === x}
+              selected={selection[order] === x}
             >
               <label onClick={onClick2(x)}>
                 <input
                   type="radio"
                   name={'select-' + order}
                   onChange={onChange2(x)}
-                  checked={localValue === x}
+                  checked={selection[order] === x}
+                  value={x} // 중요할듯
                 />
                 <span>
                   {type === 'binary' ? (x === 'T' ? '참' : '거짓') : x}
@@ -131,8 +139,10 @@ function QuestComp({
           <input
             type="text"
             placeholder="정답 입력"
-            value={localValue === null ? '' : localValue}
-            onChange={asdf}
+            value={
+              selection[order] === null ? '' : selection[order]?.toString()
+            }
+            onChange={inputChangeHandler}
           />
         </InputAnswer>
       )}

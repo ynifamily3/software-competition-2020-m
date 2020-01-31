@@ -82,18 +82,13 @@ function MockTest({ Mocktest }: { Mocktest: Mocktest }) {
     new Array(Mocktest.quests.length).fill(null), // 문제 수만큼 null로 채워진 배열
   );
 
-  const setInvidualFn = (idx: number) => {
-    //   console.log('setInvidi호출됐당.' + idx); //6번호출되네..?
-    return (value: string) => {
-      const newArray = selection.slice();
-      console.log('selection', selection);
-      console.log('newArray', newArray);
-      newArray[idx] = value;
-      console.log('idx:', idx, 'value', value);
-      console.log('데이터 이상?', newArray);
-      setSelection(newArray);
-    };
-  };
+  // const setInvidualFn = (idx: number) => {
+  //   return (value: string) => {
+  //     const newArray = selection.slice();
+  //     newArray[idx] = value;
+  //     setSelection(newArray);
+  //   };
+  // };
   return (
     <MockTestWrapper>
       <MockTestExit>
@@ -102,6 +97,7 @@ function MockTest({ Mocktest }: { Mocktest: Mocktest }) {
       </MockTestExit>
       <MockTestTitle>
         <div>2020학년도 문제지</div>
+        <div>{selection}</div>
       </MockTestTitle>
       <MockTestBody>
         {Mocktest.quests.map((x, i) => {
@@ -109,8 +105,9 @@ function MockTest({ Mocktest }: { Mocktest: Mocktest }) {
             <QuestComp
               quest={x}
               key={'quest-' + i}
-              order={i + 1}
-              setSelectionFn={setInvidualFn(i)}
+              order={i}
+              selection={selection}
+              setSelectionFn={setSelection}
             />
           );
         })}
@@ -132,9 +129,14 @@ MockTest.defaultProps = {
       },
       {
         type: 'selection',
-        title: '인생을 왜 사나요?',
-        choices: ['죽기 위해서', '살기 위해서', '먹기 위해서', '싸기 위해서'],
-        answers: ['죽기 위해서'],
+        title: '다음 중 소고기국밥에 대한 설명으로 옳은 것을 고르시오.',
+        choices: [
+          '실제로는 없는 브랜드이다.',
+          '순대가 들어있다.',
+          '얼큰한 국물이 인상적이다.',
+          '어쩌면 하나쯤은 있을수도있다.',
+        ],
+        answers: ['실제로는 없는 브랜드이다.'],
         materials: null,
       },
       {
