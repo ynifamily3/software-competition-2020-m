@@ -30,11 +30,11 @@ router.post('/createAttr',(req,res,next)=>{
 
 router.post('/readInfo',(req,res,next)=>{
 
-	docManager.readInfo(res,req.body.id,true)
+	return docManager.readInfo(res,req.body.id,true)
 
-	console.log("test");
+	//console.log("test");
 
-	return res.json({test:"test"})
+	//return res.json({test:"test"})
 })
 
 router.post('/modifyInfo',(req,res,next)=>{

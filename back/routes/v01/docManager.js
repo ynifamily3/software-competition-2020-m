@@ -23,17 +23,34 @@ exports.getInfosList = (res) => {
 		})
 }
 
-makeReadInfo = (root,nodes,edges,rootCnt,edgeCnt)=>{
-	nodes.push(root);
+makeReadInfo = async (root,nodes,edges,rootCnt,edgeCnt)=>{
 
 	for(c of root.childs){
-		edges.push([rootCnt,edgeCnt]);
+		await Info.findOne({_id:c}).populate('attrs')
+			.then(async (info)=>{
+				await nodes.push({
+					name:info.name,
+					attrs:info.attrs,
+					id:info._id,
+					parentId:info.parentId
+				})
+				//await nodes.push(info);
+				await edges.push([rootCnt,edgeCnt]);
+				edgeCnt++;
+				[nodes,edges,edgeCnt] = await makeReadInfo(info,nodes,edges,edgeCnt-1,edgeCnt);
 
+				if(nodes==null||edges==null||edgeCnt==null)
+					return [null,null,null]
+			})
+			.catch((err)=>{
+				return [null,null,null]
+			})
 
-		edgeCnt++;
 	}
 
-	return edgeCnt;
+	return [nodes,edges,edgeCnt]
+
+	//return edgeCnt;
 }
 
 exports.readInfo = async (res,id)=>{
@@ -43,7 +60,41 @@ exports.readInfo = async (res,id)=>{
 
 	Info.findOne({_id:id}).populate('attrs')
 		.then(async (info)=>{
-			await makeReadInfo(info,nodes,edges,0,edgeCnt);
+			await nodes.push({
+				name:info.name,
+				attrs:info.attrs,
+				id:info._id,
+				parentId:info.parentId
+			});
+			//await nodes.push(info);
+			[nodes,edges,edgeCnt]=await makeReadInfo(info,nodes,edges,0,edgeCnt);
+
+			if(nodes==null||edges==null||edgeCnt==null){
+				return res.json({
+					state:false,
+					msg:"Can't make Info tree",
+					nodes:[],
+					edges:[]
+				})
+			}
+
+			console.log(nodes);
+			console.log(edges);
+
+			return res.json({
+				state:true,
+				msg:'Success',
+				nodes:nodes,
+				edges:edges
+			})
+		})
+		.catch((err)=>{
+			return res.json({
+				state:false,
+				msg:"Info Not Found",
+				nodes:[],
+				edges:[]
+			})
 		})
 	//console.log(ret)
 
