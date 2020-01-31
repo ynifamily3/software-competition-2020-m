@@ -22,7 +22,7 @@ const customStyles = {
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
     boxSizing: 'border-box',
-    height: '100vh',
+    height: '90vh',
     overflow: 'hidden',
     position: 'relative',
     padding: '0', // 명시적으로 안써주면 20px가 생김
