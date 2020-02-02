@@ -25,8 +25,9 @@ const MockTestWrapper = styled.div`
   box-sizing: border-box;
   position: relative;
   background-color: white;
-  padding-bottom: 66px;
-  margin-bottom: 74px;
+  padding-bottom: 82px;
+  /* margin-bottom: 74px; */
+  z-index: 1;
   overflow: scroll;
   height: 100%;
 `;

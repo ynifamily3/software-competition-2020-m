@@ -15,7 +15,7 @@ const customStyles = {
     maxWidth: '600px',
     border: 'none',
     borderRadius: 0,
-    top: '50%',
+    // top: 'initial',
     left: '50%',
     right: 'auto',
     bottom: 'auto',

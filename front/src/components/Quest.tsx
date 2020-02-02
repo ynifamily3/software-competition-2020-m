@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { Quest as QuestType } from './MockTest';
 
@@ -74,27 +74,30 @@ function QuestComp({
   setSelectionFn: Function;
   selection: (string | null)[];
 }) {
-  const { type, title, statement, choices, answers, materials } = quest;
-  const onChange2 = useCallback(
-    (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValueAsync(value);
-    },
-    [selection],
-  );
-  const onClick2 = useCallback(
-    (value: string) => (e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
-      e.stopPropagation(); // 안에 있는 radio event의 Propagation 을 방지
-      setValueAsync(value);
-    },
-    [selection],
-  );
-
+  // console.log('render questcomp');
   const setValueAsync = (value: string) => {
     var newArr = selection.slice();
     newArr[order] = value;
-    console.log(newArr);
     setSelectionFn(newArr);
   };
+  const { type, title, statement, choices, answers, materials } = quest;
+  const onChange2 = useCallback(
+    (value: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      // console.log('passed to change evt'); // only once
+      setValueAsync(value);
+    },
+    [selection],
+  );
+  const onClick2 = (value: string) => (
+    //useCallback(
+    e: React.MouseEvent<HTMLLabelElement, MouseEvent>,
+  ) => {
+    e.stopPropagation(); // 안에 있는 radio event의 Propagation 을 방지
+    // console.log('click!'); // 두번 되네? 왜지?
+    // setValueAsync(value); //=> 앤또 왜없어도돼지?
+  };
+  // [selection],
+  //);
 
   const inputChangeHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,13 +105,27 @@ function QuestComp({
     },
     [selection], // dep가 중요
   );
+  console.log(statement?.trim());
   return (
     <QuestElem>
       <div>
         {order + 1 + '. '}
         {title}
       </div>
-      <Statement statement={statement}>{statement}</Statement>
+      <Statement statement={statement}>
+        {statement
+          ?.trim()
+          .split('\n')
+          .reduce<any>((a, b) => {
+            return (
+              <React.Fragment>
+                {a && a}
+                {a && <br />}
+                {b}
+              </React.Fragment>
+            );
+          }, '')}
+      </Statement>
       {choices.length !== 0 ? (
         choices.map((x, i) => {
           return (
@@ -120,9 +137,13 @@ function QuestComp({
                   : selection[order] === '' + i
               }
             >
-              <label onClick={onClick2(type !== 'binary' ? '' + i : x)}>
+              <label
+                onClick={onClick2(type !== 'binary' ? '' + i : x)}
+                htmlFor={'select-' + order + '-' + i}
+              >
                 <input
                   type="radio"
+                  id={'select-' + order + '-' + i}
                   name={'select-' + order}
                   onChange={onChange2(type !== 'binary' ? '' + i : x)}
                   checked={
