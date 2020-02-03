@@ -1,19 +1,14 @@
 import React from 'react';
-import './App.css';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import MySubjects from './pages/MySubjects';
-
-import Greetings from './components/Greetings';
+import { MyLocalModelContextProvider } from './contexts/MyLocalModel';
+// import { ModalProvider } from 'react-modal-hook';
+import './App.scss';
+import AppIn from './AppIn';
 
 function App() {
   return (
-    <div className="App">
-      <React.Fragment>
-        <CssBaseline />
-        <MySubjects />
-        <Greetings name="Miel" optional="옵셔널" />
-      </React.Fragment>
-    </div>
+    <MyLocalModelContextProvider>
+      <AppIn />
+    </MyLocalModelContextProvider>
   );
 }
 

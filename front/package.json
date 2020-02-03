@@ -5,6 +5,9 @@
   "dependencies": {
     "@material-ui/core": "^4.8.3",
     "@material-ui/icons": "^4.5.1",
+    "@mdi/font": "^4.7.95",
+    "@mdi/js": "^4.7.95",
+    "@mdi/react": "^1.2.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
@@ -12,9 +15,17 @@
     "@types/node": "^12.12.24",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
+    "@types/react-modal": "^3.10.4",
+    "@types/styled-components": "^4.4.2",
+    "axios": "^0.19.1",
+    "immer": "^5.3.2",
+    "node-sass": "^4.13.1",
+    "normalize.css": "^8.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-modal": "^3.11.1",
     "react-scripts": "3.3.0",
+    "styled-components": "^5.0.0",
     "typescript": "^3.7.4"
   },
   "scripts": {
