@@ -34,7 +34,7 @@ class LocalModel {
     this.devmode = devmode;
 
     // 서버 주소
-    this.url = 'https://my-json-server.typicode.com/Phryxia/demo';
+    this.url = 'http://52.79.78.251:3000/v01/doc';
   }
 
   /*

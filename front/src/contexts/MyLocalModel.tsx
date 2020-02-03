@@ -80,7 +80,7 @@ function LocalModelReducer(state: MyLocalModel, action: Action): MyLocalModel {
   }
 }
 
-const is_remote: boolean = false;
+const is_remote: boolean = true;
 const LocalModel = new LocalModelCN(!is_remote);
 
 ////
