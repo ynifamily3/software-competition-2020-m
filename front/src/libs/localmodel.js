@@ -530,3 +530,5 @@ class LocalModel {
 }
 
 module.exports = LocalModel;
+
+export default LocalModel;
