@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "rm ../docs ; react-scripts build && mv build docs && mv docs ..",
+    "build": "rm -rf ../docs ; react-scripts build && mv build docs && mv docs ..",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
