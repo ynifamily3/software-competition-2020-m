@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bodyParser = require("body-parser");
 
+
 const api=require('./routes');
 const dbConnect = require('./models');
 
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 //app.use(router);
 
 app.use('/',api);
+
 app.listen(PORT,err=>{
 	if(err) throw err;
 	console.log(`Listening on ::${PORT}`);

@@ -28,9 +28,9 @@ router.post('/createAttr',(req,res,next)=>{
 	return docManager.makeAttr(res,req.body.prefix,req.body.content,req.body.postfix,req.body.parentId);
 })
 
-router.post('/readInfo',(req,res,next)=>{
+router.get('/readInfo',(req,res,next)=>{
 
-	return docManager.readInfo(res,req.body.id,true)
+	return docManager.readInfo(res,req.query.id,true)
 
 	//console.log("test");
 
@@ -54,8 +54,8 @@ router.post('/modifyAttr',(req,res,next)=>{
 	return docManager.modifyAttr(res,req.body.prefix,req.body.content,req.body.postfix,req.body.aid);
 })
 
-router.post('/deleteInfo',(req,res,next)=>{
-	return docManager.deleteInfo(res,req.body.id,true)
+router.delete('/deleteInfo',(req,res,next)=>{
+	return docManager.deleteInfo(res,req.query.id,true)
 	/*
 	return res.json({
 		state:"Boolean",
@@ -64,9 +64,9 @@ router.post('/deleteInfo',(req,res,next)=>{
 	*/
 });
 
-router.post('/deleteAttr',(req,res,next)=>{
+router.delete('/deleteAttr',(req,res,next)=>{
 
-	return docManager.deleteAttr(res,req.body.aid);
+	return docManager.deleteAttr(res,req.query.aid);
 })
 
 module.exports = router
