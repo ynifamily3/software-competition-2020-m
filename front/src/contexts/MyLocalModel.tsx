@@ -1,5 +1,5 @@
 import React, { createContext, Dispatch, useReducer, useContext } from 'react';
-const LocalModelCN = require('../libs/localmodel');
+import LocalModelCN from '../libs/localmodel';
 
 export interface Attr {
   pinfo: Info;

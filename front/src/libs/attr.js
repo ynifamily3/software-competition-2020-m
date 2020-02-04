@@ -62,4 +62,4 @@ class Attr {
 	}
 };
 
-module.exports = Attr;
+export default Attr;

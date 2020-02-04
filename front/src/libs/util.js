@@ -84,4 +84,5 @@ Util.get_randomly_multi_dup = function(arr, n) {
 	return out;
 };
 
-module.exports = Util;
+// module.exports = Util;
+export default Util;

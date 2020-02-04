@@ -1,5 +1,6 @@
-const Info = require('./info');
-const Soup = require('./soup');
+// const Info = require('./info');
+// const Soup = require('./soup');
+import Soup from './soup';
 
 const Protocol = {
 	// info의 하위지식을 comm에 직렬화한다.
@@ -59,4 +60,6 @@ const Protocol = {
 	}
 };
 
-module.exports = Protocol;
+// module.exports = Protocol;
+
+export default Protocol;

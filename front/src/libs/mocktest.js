@@ -1,7 +1,11 @@
-const Info = require('./info');
-const Traveler = require('./traveler');
-const Quest = require('./quest');
-const Util = require('./util');
+// const Info = require('./info');
+// const Traveler = require('./traveler');
+// const Quest = require('./quest');
+// const Util = require('./util');
+
+import Traveler from './traveler';
+import Quest from './quest';
+import Util from './util';
 
 /*
 	외부 사용법
@@ -165,4 +169,5 @@ Mocktest.create_mocktest = function(root, n) {
 	return new Mocktest(quests);
 }
 
-module.exports = Mocktest;
+// module.exports = Mocktest;
+export default Mocktest;

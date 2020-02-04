@@ -1,5 +1,7 @@
-const Info = require('./info');
-const Util = require('./util');
+// const Info = require('./info');
+// const Util = require('./util');
+import Info from './info';
+import Util from './util';
 
 /*
 	2020-01-07
@@ -359,4 +361,5 @@ Soup.TYPE_O = 3;
 // 	}, []), n);
 // };
 
-module.exports = Soup;
+// module.exports = Soup;
+export default Soup;

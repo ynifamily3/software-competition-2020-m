@@ -1,4 +1,5 @@
-const Util = require('./util');
+// const Util = require('./util');
+import Util from './util';
 
 /*
 	Traveler 클래스는 알고리즘이 트리를 쉽게
@@ -106,4 +107,5 @@ Traveler.selectNegativeAttrs = function(material, n) {
 		return Util.get_randomly_multi(attrs, Math.min(n, attrs.length));
 };
 
-module.exports = Traveler;
+// module.exports = Traveler;
+export default Traveler;

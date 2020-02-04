@@ -1,7 +1,11 @@
-const Info = require('./info');
-const Traveler = require('./traveler');
-const Util = require('./util');
-const Queue = require('./queue');
+// const Info = require('./info');
+// const Traveler = require('./traveler');
+// const Util = require('./util');
+// const Queue = require('./queue');
+
+import Traveler from './traveler';
+import Util from './util';
+import Queue from './queue';
 
 /*
 	Quest 쓰는 방법
@@ -229,4 +233,5 @@ Quest.generate_selection2_quest = function(material, n) {
   return new Quest('selection', title, stmt, choices, answers, material);
 };
 
-module.exports = Quest;
+// module.exports = Quest;
+export default Quest;

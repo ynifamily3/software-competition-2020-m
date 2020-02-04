@@ -41,4 +41,4 @@ class Info {
 
 Info.jsidcnt = 0;
 
-module.exports = Info;
+export default Info;

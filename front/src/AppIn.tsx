@@ -6,7 +6,7 @@ import {
 
 import Gnb from './components/Gnb';
 import Main from './components/Main';
-import MockTest from './components/MockTest';
+// import MockTest from './components/MockTest';
 
 function AppIn() {
   const { LocalModel } = useMyLocalModel();

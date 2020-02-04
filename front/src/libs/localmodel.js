@@ -1,7 +1,12 @@
-const Info = require('./info');
-const Attr = require('./attr');
-const Mocktest = require('./mocktest');
-const axios = require('axios').default;
+// const Info = require('./info');
+// const Attr = require('./attr');
+// const Mocktest = require('./mocktest');
+// const axios = require('axios').default;
+
+import Info from './info';
+import Attr from './attr';
+import Mocktest from './mocktest';
+import axios from 'axios';
 
 /*
 	LocalModel은 클라이언트에서 다루는 주제 트리와
@@ -529,6 +534,6 @@ class LocalModel {
   }
 }
 
-module.exports = LocalModel;
+// module.exports = LocalModel;
 
 export default LocalModel;
