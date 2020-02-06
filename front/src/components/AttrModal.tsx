@@ -73,12 +73,12 @@ const ImportantButtonWrapper = styled.div`
   & > button:nth-child(2) {
     flex: 1;
     font-weight: bold;
-    background-color: rgb(24, 109, 238);
+    background-color: rgb(190,0,4);
     color: white;
   }
   & > button:disabled {
     font-weight: normal;
-    background-color: rgba(24, 109, 238, 0.5);
+    background-color: rgba(190,0,4, 0.5);
   }
 `;
 
@@ -90,13 +90,15 @@ const Preview = styled.div`
 
 const InputBox = styled.div`
   & > input[type='text'] {
+    box-sizing: border-box;
+    font-size: 2em;
     width: 100%;
   }
 `;
 
 const SelButton = styled.button`
   background-color: ${(props: { selected?: boolean }) =>
-    props.selected ? 'rgb(187,188,244)' : '#eeeeee'};
+    props.selected ? 'rgba(190,0,4, 0.5)' : '#eeeeee'};
 `;
 
 // [출처] [자바스크립트] 한글 받침 구별 함수

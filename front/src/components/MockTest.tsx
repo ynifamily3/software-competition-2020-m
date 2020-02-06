@@ -72,12 +72,12 @@ const MockTestExit = styled.div`
   & > button:nth-child(2) {
     flex: 1;
     font-weight: bold;
-    background-color: rgb(24, 109, 238);
+    background-color: rgb(190,0,4);
     color: white;
   }
   & > button:disabled {
     font-weight: normal;
-    background-color: rgba(24, 109, 238, 0.5);
+    background-color: rgba(190,0,4, 0.5);
   }
 `;
 
@@ -109,12 +109,11 @@ function MockTest({
   return (
     <MockTestWrapper>
       <MockTestExit>
-        <button>채점</button>
         <button onClick={closeClickHandler}>닫기</button>
+        <button>채점</button>
       </MockTestExit>
       <MockTestTitle>
         <div>2020학년도 문제지</div>
-        <div>{selection}</div>
       </MockTestTitle>
       <MockTestBody>
         {Mocktest.quests.map((x, i) => {

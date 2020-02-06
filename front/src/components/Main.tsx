@@ -47,6 +47,7 @@ const Subjects = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+  margin-bottom: 105px;
 `;
 const Subject = styled.li`
   display: flex;
@@ -70,10 +71,11 @@ const Attrs = styled.div`
   flex-direction: column;
 `;
 const Attr = styled.div`
-  &:before {
-    content: '(연필) ';
-  }
   padding: 15px 0;
+  & > img {
+    width: 1em;
+    margin-right: 1em;
+  }
 `;
 const InfoList = Subjects; // 동률 스타일
 const Info = Subject; // 동률 스타일
@@ -174,7 +176,7 @@ function Main() {
           createdHandler,
         );
       } else {
-        alert('유효하지 않는 과목 이름입니다.');
+        // alert('유효하지 않는 과목 이름입니다.');
       }
     },
     [dispatch, MyLocalModel],
@@ -198,7 +200,7 @@ function Main() {
       if (typeof input_info === 'string' && input_info.trim().length !== 0) {
         MyLocalModel.LocalModel.createInfo(input_info.trim(), createdHandler);
       } else {
-        alert('유효하지 않는 정보 이름입니다.');
+        // alert('유효하지 않는 정보 이름입니다.');
       }
     },
     [dispatch, MyLocalModel],
@@ -239,7 +241,7 @@ function Main() {
                 )}
               </Attr>
               {MyLocalModel.info?.attrs.map((x: AttrType, i: number) => {
-                return <Attr key={'Attr-' + i}>{x.getFullSentence()}</Attr>;
+                return <Attr key={'Attr-' + i}><img src="/pencil.png"/>{x.getFullSentence()}</Attr>;
               })}
             </Attrs>
             <hr />

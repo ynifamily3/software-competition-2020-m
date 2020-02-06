@@ -19,6 +19,13 @@ const GnbWrapper = styled.div`
   & > div:first-child {
     flex: 1;
   }
+  & > div > button {
+    all : unset;
+    margin: auto 1em;
+  }
+  & > div>button>img {
+    height: 1.5em;
+  }
 `;
 
 function Gnb() {
@@ -51,12 +58,15 @@ function Gnb() {
       </div>
       <div>
         {MyLocalModel.currentPath.length >= 2 && (
-          <button onClick={handleGoToUpperPageButton}>상위 정보</button>
+          <button onClick={handleGoToUpperPageButton}>
+            <img src="/back.png" alt="홈으로" title="홈으로" />
+          </button>
         )}
       </div>
       <div>
         {MyLocalModel.currentPath.length !== 0 && (
-          <button onClick={handleExitToMainPageButton}>내 주제</button>
+          <button onClick={handleExitToMainPageButton}>
+          <img src="/home.png" alt="홈으로" title="홈으로" /></button>
         )}
       </div>
     </GnbWrapper>

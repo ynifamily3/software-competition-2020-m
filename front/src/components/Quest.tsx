@@ -92,6 +92,12 @@ function QuestComp({
     //useCallback(
     e: React.MouseEvent<HTMLLabelElement, MouseEvent>,
   ) => {
+    var test = e.currentTarget;
+    test.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+        });
     e.stopPropagation(); // 안에 있는 radio event의 Propagation 을 방지
     // console.log('click!'); // 두번 되네? 왜지?
     // setValueAsync(value); //=> 앤또 왜없어도돼지?
@@ -105,7 +111,7 @@ function QuestComp({
     },
     [selection], // dep가 중요
   );
-  console.log(statement?.trim());
+  // console.log(statement?.trim());
   return (
     <QuestElem>
       <div>
