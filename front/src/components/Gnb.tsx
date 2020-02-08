@@ -20,10 +20,20 @@ const GnbWrapper = styled.div`
     flex: 1;
   }
   & > div > button {
-    all : unset;
+    all: unset;
     margin: auto 1em;
   }
-  & > div>button>img {
+  .path {
+    margin: 0;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .path:last-child {
+    text-decoration: none;
+    cursor: auto;
+  }
+  & > div > button > img {
+    cursor: pointer;
     height: 1.5em;
   }
 `;
@@ -39,8 +49,12 @@ function Gnb() {
     [dispatch, MyLocalModel],
   );
   const handleGoToUpperPageButton = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      var info = MyLocalModel.LocalModel.moveToParent();
+    (count: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      var info;
+      if (count === 0) return;
+      while (count--) {
+        info = MyLocalModel.LocalModel.moveToParent();
+      }
       dispatch({
         type: 'CHANGE_PATH',
         path: MyLocalModel.LocalModel.getCurrentPath(),
@@ -52,21 +66,42 @@ function Gnb() {
   return (
     <GnbWrapper>
       <div>
-        {MyLocalModel.currentPath.reduce((prev, curr) => {
-          return prev.concat(' > ').concat(curr);
-        }, '> 내 주제 ')}
+        {MyLocalModel.currentPath.reduce(
+          (prev, curr, index) => {
+            return (
+              <React.Fragment>
+                {prev} >{' '}
+                <button
+                  className="path"
+                  onClick={handleGoToUpperPageButton(
+                    MyLocalModel.currentPath.length - index - 1,
+                  )}
+                >
+                  {curr}
+                </button>
+              </React.Fragment>
+            );
+          },
+          <React.Fragment>
+            >{' '}
+            <button className="path" onClick={handleExitToMainPageButton}>
+              내 주제
+            </button>
+          </React.Fragment>,
+        )}
       </div>
       <div>
         {MyLocalModel.currentPath.length >= 2 && (
-          <button onClick={handleGoToUpperPageButton}>
-            <img src="/back.png" alt="홈으로" title="홈으로" />
+          <button onClick={handleGoToUpperPageButton(1)}>
+            <img src="/back.png" alt="뒤로" title="뒤로" />
           </button>
         )}
       </div>
       <div>
         {MyLocalModel.currentPath.length !== 0 && (
           <button onClick={handleExitToMainPageButton}>
-          <img src="/home.png" alt="홈으로" title="홈으로" /></button>
+            <img src="/home.png" alt="홈으로" title="홈으로" />
+          </button>
         )}
       </div>
     </GnbWrapper>
