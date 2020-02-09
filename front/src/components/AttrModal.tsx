@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import Modal from 'react-modal';
 import styled from 'styled-components';
+import NewButton from './NewButton';
 
 import {
   useMyLocalModel,
@@ -73,12 +74,12 @@ const ImportantButtonWrapper = styled.div`
   & > button:nth-child(2) {
     flex: 1;
     font-weight: bold;
-    background-color: rgb(190,0,4);
+    background-color: rgb(190, 0, 4);
     color: white;
   }
   & > button:disabled {
     font-weight: normal;
-    background-color: rgba(190,0,4, 0.5);
+    background-color: rgba(190, 0, 4, 0.5);
   }
 `;
 
@@ -272,7 +273,7 @@ function AttrModal({ name }: { name: string[] }) {
   );
   return (
     <React.Fragment>
-      <button onClick={openModal}>속성 추가</button>
+      <NewButton onClick={openModal}>속성 추가</NewButton>
       <Modal
         closeTimeoutMS={200}
         isOpen={modalIsOpen}

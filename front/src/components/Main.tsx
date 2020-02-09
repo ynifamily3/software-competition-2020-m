@@ -9,6 +9,7 @@ import {
 
 import AttrModal from './AttrModal';
 import MockTestModal from './MockTestModal';
+import NewButton from './NewButton';
 
 // vscode-styled-components 모듈 설치로 문자열화 방지.
 const MainWrapper = styled.div`
@@ -220,13 +221,21 @@ function Main() {
         {MyLocalModel.currentPath.length === 0 ? (
           <Subjects>
             <Subject add>
-              <button onClick={handleCreateAndIntoSubject}>과목 추가</button>
+              <NewButton
+                onClick={handleCreateAndIntoSubject}
+                background="wheat"
+              >
+                과목 추가
+              </NewButton>
             </Subject>
             {MyLocalModel.subjects.map((x, i) => {
               return (
                 <Subject key={'subjects-' + x.id}>
                   <div>{x.name}</div>
-                  <Button onClick={handleIntoSubject(x.id)}>이동</Button>
+                  {/* <Button onClick={handleIntoSubject(x.id)}>
+                    서브젝트로 이동
+                  </Button> */}
+                  <NewButton onClick={handleIntoSubject(x.id)}>이동</NewButton>
                 </Subject>
               );
             })}
@@ -241,21 +250,24 @@ function Main() {
                 )}
               </Attr>
               {MyLocalModel.info?.attrs.map((x: AttrType, i: number) => {
-                return <Attr key={'Attr-' + i}><img src="/pencil.png"/>{x.getFullSentence()}</Attr>;
+                return (
+                  <Attr key={'Attr-' + i}>
+                    <img src="/pencil.png" />
+                    {x.getFullSentence()}
+                  </Attr>
+                );
               })}
             </Attrs>
             <hr />
             <InfoList>
               <Info>
-                <button onClick={handleAddInfo}>정보 추가</button>
+                <NewButton onClick={handleAddInfo}>정보 추가</NewButton>
               </Info>
               {MyLocalModel.info?.childs.map((x: InfoType, i: number) => {
                 return (
                   <Info key={'Info-' + i}>
                     {x.names.join(' | ')}
-                    <Button danger onClick={handleIntoInfo(i)}>
-                      {'하위 정보 이동'}
-                    </Button>
+                    <NewButton onClick={handleIntoInfo(i)}>이동</NewButton>
                   </Info>
                 );
               })}
