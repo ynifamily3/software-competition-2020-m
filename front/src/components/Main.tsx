@@ -70,9 +70,17 @@ const InfoWrapper = styled.div`
 const Attrs = styled.div`
   display: flex;
   flex-direction: column;
+  /* width: 100%; */
 `;
 const Attr = styled.div`
-  padding: 15px 0;
+  /* display: inline-block; */
+  padding: 1em 1em;
+  background: #efeeee;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: -6px -6px 26px 0 rgba(255, 255, 255, 0.83),
+    6px 6px 16px 0 rgba(217, 210, 200, 0.51);
+  margin: 1em 0;
   & > img {
     width: 1em;
     margin-right: 1em;
